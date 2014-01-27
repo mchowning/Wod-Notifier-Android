@@ -1,5 +1,8 @@
 package com.mattchowning.wodnotifier;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -11,7 +14,7 @@ import android.view.MenuItem;
  * Activity called on app startup.  Has a frame filled entirely by the WodList ListFragment, which
  * is called by the layout file.
  *
- * TODO Implement settings, help, contact info, etc.
+ * TODO Implement help, contact info, etc.
  *      Settings might want to include:
  *          Notifications?
  *          Type of notification
@@ -42,7 +45,24 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
+        } else if (id == R.id.action_help) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Have questions?\n" +
+                               "Found a bug?\n" +
+                               "Want a certain feature?\n\n" +
+                               "Let me know at wodnotifier@gmail.com");
+            builder.setTitle(R.string.action_help);
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    // Don't need to do anything to just let dialog close
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
         return super.onOptionsItemSelected(item);
     }

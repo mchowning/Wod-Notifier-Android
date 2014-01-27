@@ -1,19 +1,12 @@
 package com.mattchowning.wodnotifier;
 
+import android.app.Activity;
 import android.app.ListFragment;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 /*
@@ -23,7 +16,7 @@ import java.util.ArrayList;
  * using an AsyncTask to make a network call.
  */
 
-public class WodList extends ListFragment {
+public class WodList extends ListFragment implements XmlChecker{
     public static final String WIFI = "Wi-Fi";
     public static final String ANY = "Any";
     private static final String URL =
@@ -35,18 +28,28 @@ public class WodList extends ListFragment {
     public static String sPref = null;                  // User's preferences on above variables
     private WodEntryAdapter adapter;
 
+    private static final String LAST_DOWNLOAD = "Title of most recent entry downloaded previously";
     private static final String TAG = WodList.class.getName();
 
-    // FIXME Doesn't check to make sure there is an internet connection
-    // Uses AsyncTask to download the specified xml feed
-    public WodList() {
+    private Activity mActivity;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        new WodDownloader(mActivity, this);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 //        if ((sPref.equals(ANY)) && (isWifiConnected || isMobileConnected)) {
-            new DownloadXmlTask().execute(URL);
-//        } else if (sPref.equals(WIFI) && isWifiConnected) {
-//            new DownloadXmlTask().execute(URL);
+//        new WodDownloader(activity, this);                                                          // TODO Make it show a title screen while the WOD is being downloaded?
+//        } else if (sPref.equals(WIFI) && isWifiConnected) {                                       // Seems to be more of an issue on my phone.
+//            new WodDownloader().execute(URL);
 //        } else {
 //
 //        }
+        mActivity = activity;
     }
 
     @Override
@@ -58,54 +61,14 @@ public class WodList extends ListFragment {
         return inflater.inflate(R.layout.fragment_wod_list, container, false);
     }
 
-    private class DownloadXmlTask extends AsyncTask<String, Void, ArrayList<WodEntry>> {
-
-        @Override
-        protected ArrayList<WodEntry> doInBackground(String... urls) {
-            ArrayList<WodEntry> arrayList = new ArrayList<WodEntry>();
-            try {
-                arrayList = loadXmlFromNetwork(urls[0]);
-            } catch (IOException e) {
-                Log.w(TAG, "IOException downloading rss feed");
-            } catch (XmlPullParserException e) {
-                Log.w(TAG, "Xml parsing exception downloading rss feed");
-            }
-            return arrayList;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<WodEntry> results) {
-            adapter.addAll(results);
-
-        }
-
-        /* Uploads XML from source url, parses the title, link, and htmlDescription, and puts it
-        into a WodEntry */
-        private ArrayList<WodEntry> loadXmlFromNetwork(String urlString)
-                throws XmlPullParserException, IOException {
-            InputStream stream = null;
-            XmlParser xmlParser = new XmlParser();
-            ArrayList<WodEntry> entries = null;
-            try {
-                stream = downloadUrl(urlString);
-                entries = xmlParser.parse(stream);
-            } finally {
-                if (stream != null) stream.close();
-            }
-            return entries;
-        }
-
-        // Given a string representation of a URL, sets up a connection and gets an input stream.
-        private InputStream downloadUrl(String urlString) throws IOException {
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-//            conn.setRequestMethod("GET"); // This seems unnecessary because it is the default,
-                                            // but it was in the Android Developers sample.
-            conn.setDoInput(true);
-            conn.connect();
-            return conn.getInputStream();
+    @Override
+    public void entriesReceived(ArrayList<WodEntry> entries, boolean wereResultsUpdated) {
+        adapter.clear();
+        if (entries == null) {
+            WodEntry entry = new WodEntry("Entries unavailable", null, null);                       // TODO Handle lack of internect connection in a better way
+            adapter.add(entry);
+        } else {
+            adapter.addAll(entries);
         }
     }
 }

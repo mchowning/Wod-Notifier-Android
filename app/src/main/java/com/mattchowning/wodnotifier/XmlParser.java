@@ -21,10 +21,10 @@ import java.util.ArrayList;
  *              title
  *              link
  *              . . .
- *              htmlDescription
+ *              originalHtmlDescription
  *              . . .
  *
- * and get the title, link, and htmlDescription.
+ * and get the title, link, and originalHtmlDescription.
  */
 
 public class XmlParser {
@@ -37,7 +37,8 @@ public class XmlParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             parser.nextTag();
-            return readRss(parser);
+            ArrayList<WodEntry> entries = readRss(parser);
+            return entries;
         } finally {
             in.close();
         }
@@ -45,18 +46,15 @@ public class XmlParser {
 
     private ArrayList<WodEntry> readRss(XmlPullParser parser) throws XmlPullParserException, IOException {
         ArrayList<WodEntry> entries = new ArrayList<WodEntry>();
-
         parser.require(XmlPullParser.START_TAG, ns, "rss"); // Tests to make sure at proper ("rss") position
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             String name = parser.getName();
             if (name.equals("channel")) {
-//                entries.add(readEntry(parser));
                 return readChannel(parser, entries);
             } else {
                 skip(parser);
             }
-
         }
         return entries;
     }

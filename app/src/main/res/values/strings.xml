@@ -2,10 +2,28 @@
 <resources>
 
     <string name="app_name">CFR Notifier</string>
-    <string name="action_settings">Settings</string>
-    <string name="connection_error">IO Exception on DownloadXMLTask.doInBackground</string>
-    <string name="xml_error">XmlPullParserException on DownloadXMLTask.doInBackground</string>
     <string name="title_activity_network_activity">Network Activity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="notification_title">CFR has posted a new WOD!</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_help">Help</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_background_updates">Check for updates in background</string>
+    <string name="settings_notification">Receive Notifications</string>
+    <string name="settings_notification_sound">Notification Sound</string>
+    <string name="settings_notification_vibrate">Vibrate on Notification</string>
+
+    <string name="pref_notification">notifications</string>
+    <string name="pref_notification_sound">notification_sound</string>
+    <string name="pref_notification_vibrate">notification_vibrate</string>
+    <string name="pref_notification_summary">of new WODs</string>
+    <string name="pref_background_updates">pref_background_updates</string>
+    <string name="pref_last_downloaded_wod">last_downloaded_wod</string>
+
+    <string name="connection_error">IO Exception on DownloadXMLTask.doInBackground</string>
+    <string name="xml_error">XmlPullParserException on DownloadXMLTask.doInBackground</string>
 
 </resources>
