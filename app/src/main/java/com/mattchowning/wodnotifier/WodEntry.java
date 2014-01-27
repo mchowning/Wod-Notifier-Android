@@ -1,7 +1,6 @@
 package com.mattchowning.wodnotifier;
 
 import android.text.Html;
-import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,11 +38,7 @@ public class WodEntry {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
                 date = sdf.parse(title);
-            } catch (ParseException ex) {
-                Log.e(TAG, "SimpleDateFormat could not parse the Wod's date");
-            }
-        } else {
-            Log.e(TAG, "SimpleDateFormat could not parse the Wod's date");
+            } catch (ParseException ex) {}
         }
     }
 

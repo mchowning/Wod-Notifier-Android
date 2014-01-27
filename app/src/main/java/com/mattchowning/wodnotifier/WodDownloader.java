@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -41,10 +40,8 @@ public class WodDownloader extends AsyncTask<String, Void, ArrayList<WodEntry>> 
         try {
             entries = loadXmlFromNetwork(urls[0]);
         } catch (IOException e) {                                                                   // TODO Make sure the app sets up the alarms even when there isn't an internet connection.
-            Log.w(TAG, "IOException downloading rss feed");
             xmlChecker.entriesReceived(null, false);                                                // FIXME These calls just go back to the WodList the first time (or anytime the WodList is the caller).
         } catch (XmlPullParserException e) {
-            Log.w(TAG, "Xml parsing exception downloading rss feed");
             xmlChecker.entriesReceived(null, false);
         }
         return entries;
@@ -95,16 +92,13 @@ public class WodDownloader extends AsyncTask<String, Void, ArrayList<WodEntry>> 
         if (sPrefs.contains(lastDownloadPrefKey)) {
             String lastDownloadedEntry = sPrefs.getString(lastDownloadPrefKey, null);
             if (lastDownloadedEntry.equals(justDownloadedEntry)) {
-                Log.d(TAG, "Downloaded entries same as previous.");
                 wereResultsUpdated = false;
 //                wereResultsUpdated = true;                                                        // TESTING (alarm)
             } else {
-                Log.d(TAG, "Downloaded updated entries.");
                 updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
                 wereResultsUpdated = true;
             }
         } else {
-            Log.d(TAG, "First time downloading entries.");
             updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
             wereResultsUpdated = false;
 

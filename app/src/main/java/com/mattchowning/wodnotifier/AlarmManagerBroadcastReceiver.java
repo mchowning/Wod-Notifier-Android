@@ -15,7 +15,6 @@ import android.net.Uri;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -58,8 +57,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
     @Override
     public void onReceive(Context context, Intent intent) {
         receiverContext = context;
-        Log.d(TAG, "AlarmManagerBroadcastReceiver's onReceive() method was called and a " +
-                "WodDownloader is being started");
         new WodDownloader(context, this);
     }
 
@@ -68,8 +65,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
     public void entriesReceived(ArrayList<WodEntry> entries, boolean wereResultsUpdated) {
 
         if (wereResultsUpdated) {
-
-            Log.d(TAG, "Alarm notified of new results.");
 
             // TODO Implement once notification preference can disable notifications while still
             // allowing the WOD to be downloaded in order to update saved WODs.
@@ -87,7 +82,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
 //            setCustomRepeatingAlarm();                                                            // TESTING (alarm) Make sure and undo comment on setNextDayAlarm call on line above this one
 
         } else {
-            Log.d(TAG, "Alarm notified of no new results.");
             setCustomRepeatingAlarm();
         }
     }
@@ -151,7 +145,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
         cal.set(Calendar.HOUR_OF_DAY, alarmHour);
         cal.set(Calendar.MINUTE, alarmMinute);
         startAlarm(cal.getTimeInMillis());
-        Log.d(TAG, "Enabling the receiver and setting the next day alarm");
     }
 
     private void setCustomRepeatingAlarm() {
@@ -186,8 +179,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
         }
 
         startAlarm(cal.getTimeInMillis() + timeToNextAlarm);
-        Log.d(TAG, "Enabling receiver and setting custom repeating alarm in " +
-                Integer.toString(timeToNextAlarm / ONE_MINUTE) + " minutes.");
     }
 
     // startTime argument is derived from a Calendar object's getTimeInMillis() method (plus
@@ -203,7 +194,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
     // the same pending intent, this effectively cancels any set alarm.  This method also
     // disables the receiver.
     public static void cancelAlarm(Context context) {
-        Log.d(TAG, "Cancelling all alarms and disabling the receiver");
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmManagerBroadcastReceiver.class);
         PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
