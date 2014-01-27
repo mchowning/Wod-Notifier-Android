@@ -3,7 +3,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="20dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="15dp"
     >
 
     <TextView
@@ -11,10 +12,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold|italic"
+        android:textSize="16sp"
         android:gravity="center"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:background="#000000"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@drawable/rounded_corners"
         android:textColor="#FFFFFF"
         android:lineSpacingMultiplier="1.2"
         />
