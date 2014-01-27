@@ -50,11 +50,11 @@ public class MainActivity extends ActionBarActivity {
             return true;
         } else if (id == R.id.action_help) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Have questions?\n" +
-                               "Found a bug?\n" +
-                               "Want a certain feature?\n\n" +
-                               "Let me know at wodnotifier@gmail.com");
             builder.setTitle(R.string.action_help);
+            builder.setMessage(getString(R.string.action_help_message) + "\n\n" +
+                    getString(R.string.action_help_contact) + "\n\n" +
+                    getString(R.string.app_version_string) +
+                    BuildConfig.VERSION_NAME);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
