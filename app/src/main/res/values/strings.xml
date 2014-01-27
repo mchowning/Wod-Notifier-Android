@@ -5,7 +5,7 @@
     <string name="title_activity_network_activity">Network Activity</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_settings">SettingsActivity</string>
-    <string name="notification_title">CFR has posted a new WOD!</string>
+    <string name="notification_title">CFR has a new WOD!</string>
 
     <string name="action_settings">Settings</string>
     <string name="action_help">Help</string>
@@ -24,6 +24,12 @@
     <string name="pref_last_downloaded_wod">last_downloaded_wod</string>
 
     <string name="connection_error">IO Exception on DownloadXMLTask.doInBackground</string>
-    <string name="xml_error">XmlPullParserException on DownloadXMLTask.doInBackground</string>
+    <string name="xml_error">XmlPullParserException on DownloadXMLTask.doInBackground</string><string name="action_help_message">Have questions?
+Found a bug?
+Want a certain feature?
+
+Let me know at wodnotifier@gmail.com
+
+CFR Notifier version </string>
 
 </resources>

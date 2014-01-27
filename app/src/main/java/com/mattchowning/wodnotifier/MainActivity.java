@@ -3,6 +3,7 @@ package com.mattchowning.wodnotifier;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -50,11 +51,8 @@ public class MainActivity extends ActionBarActivity {
             return true;
         } else if (id == R.id.action_help) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Have questions?\n" +
-                               "Found a bug?\n" +
-                               "Want a certain feature?\n\n" +
-                               "Let me know at wodnotifier@gmail.com");
             builder.setTitle(R.string.action_help);
+            builder.setMessage(getString(R.string.action_help_message) + BuildConfig.VERSION_NAME);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
