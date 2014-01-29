@@ -58,9 +58,21 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
     @Override
     public void onReceive(Context context, Intent intent) {
         receiverContext = context;
+        new WodDownloader(context, this);
         Log.d(TAG, "AlarmManagerBroadcastReceiver's onReceive() method was called and a " +
                 "WodDownloader is being started");
-        new WodDownloader(context, this);
+
+        if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
+            if (intent.getData().getSchemeSpecificPart().equals(context.getPackageName())) {
+                Log.d(TAG, "Wod Notifier broadcast receiver notified that THIS package is/was replaced");
+            } else {
+                Log.d(TAG, "Wod Notifier broadcast receiver notified that a DIFFERENT package is/was replaced");
+            }
+        } else if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            Log.d(TAG, "Wod Notifier broadcast receiver notified that a boot was completed");
+        } else { // TODO Specifically define to my calling package and create an error else clause
+            Log.d(TAG, "Wod Notifier broadcast receiver alerted by something unspecified. This should NOT happen.");
+        }
     }
 
     // Callback from WodDownloader
@@ -159,7 +171,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
         setReceiverEnabledStatus(receiverContext, true);
 
         Calendar cal = Calendar.getInstance();
-//        int timeToNextAlarm = 10 * ONE_SECOND;                                                    // TESTING (alarm)
         int timeToNextAlarm;
         int currentHour = cal.get(Calendar.HOUR_OF_DAY);
         switch (currentHour) {
@@ -184,6 +195,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver implements 
                 timeToNextAlarm = ONE_HOUR;
                 break;
         }
+//        timeToNextAlarm = 5 * ONE_MINUTE;                                                         // TESTING (alarm)
 
         startAlarm(cal.getTimeInMillis() + timeToNextAlarm);
         Log.d(TAG, "Enabling receiver and setting custom repeating alarm in " +
