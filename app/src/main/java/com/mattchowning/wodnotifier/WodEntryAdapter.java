@@ -41,6 +41,7 @@ public class WodEntryAdapter extends ArrayAdapter<WodEntry> {
 
         WodEntry thisEntry = getItem(position);
         // Find better way to do error/null checking??
+
         if (thisEntry != null) {
             TextView dateView = (TextView) convertView.findViewById(R.id.list_item_wod_date);
             Date wodDate = thisEntry.date;

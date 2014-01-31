@@ -1,4 +1,4 @@
-package com.mattchowning.wodnotifier;
+package com.mattchowning.wodnotifier.Views;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -7,6 +7,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.mattchowning.wodnotifier.BuildConfig;
+import com.mattchowning.wodnotifier.R;
 
 /*
  * MainActivity

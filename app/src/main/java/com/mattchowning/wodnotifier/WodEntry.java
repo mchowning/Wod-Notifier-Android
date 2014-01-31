@@ -1,5 +1,7 @@
 package com.mattchowning.wodnotifier;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Html;
 import android.util.Log;
 
@@ -13,7 +15,7 @@ import java.util.Locale;
  * --------
  * Simple class for holding data about the WOD for a particular day.
  */
-public class WodEntry {
+public class WodEntry implements Parcelable {
     public String title;                    // XML title field from XML, which is the Wod's date at
                                             // CFR in the form of [MM]/[DD]/[YY]
     public String link;                     // XML link field to CFR posting of Wod
@@ -31,6 +33,14 @@ public class WodEntry {
         setDate();
     }
 
+    public WodEntry(Parcel parcel) {
+        title = parcel.readString();
+        link = parcel.readString();
+        originalHtmlDescription = parcel.readString();
+        setDescription();
+        setDate();
+    }
+
     // Parses the title into a date, but only if it is of the format MM/DD/YY, MM-DD-YY, or MM\DD\YY
     private void setDate() {
         if (title == null) return;
@@ -40,10 +50,10 @@ public class WodEntry {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
                 date = sdf.parse(title);
             } catch (ParseException ex) {
-                Log.e(TAG, "SimpleDateFormat could not parse the Wod's date");
+                Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
             }
         } else {
-            Log.e(TAG, "SimpleDateFormat could not parse the Wod's date");
+            Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
         }
     }
 
@@ -67,4 +77,30 @@ public class WodEntry {
         }
         plainTextDescription = plaintTextDescription.substring(0, indexOfBreakingPoint);
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(title);
+        parcel.writeString(link);
+        parcel.writeString(originalHtmlDescription);
+    }
+
+    public static final Parcelable.Creator<WodEntry> CREATOR = new Creator<WodEntry>() {
+
+        @Override
+        public WodEntry createFromParcel(Parcel parcel) {
+            return new WodEntry(parcel);
+        }
+
+        @Override
+        public WodEntry[] newArray(int i) {
+            return new WodEntry[i];
+        }
+    };
+
 }

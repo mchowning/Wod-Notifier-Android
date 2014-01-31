@@ -1,10 +1,12 @@
 package com.mattchowning.wodnotifier;
 
-import android.content.Context;
+import android.app.IntentService;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.mattchowning.wodnotifier.Views.WodList;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -14,48 +16,41 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-/*
- * WodDownloader
- * -------------
- * Uses an AsyncTask to download the RSS feed and get it parsed into an arrayList of WodEntry
- * objects.
+/**
+ * Created by Matt on 1/29/14.
  */
-public class WodDownloader extends AsyncTask<String, Void, ArrayList<WodEntry>> {
+public class UpdateService extends IntentService {
 
     private static final String TAG = WodList.class.getName();
     private static final String URL =
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
+    public static final String WERE_ENTRIES_UPDATED =
+            "com.mattchowning.wodnotifier.wereEntriesUpdated";
+    public static final String ENTRIES =
+            "com.mattchowning.wodnotifier.entries";
 
-    private Context context;
-    private XmlChecker xmlChecker;
-
-    public WodDownloader(Context context, XmlChecker xmlChecker) {
-        this.context = context;
-        this.xmlChecker = xmlChecker;
-        execute(URL);
+    public UpdateService() {
+        super("UpdateService");
     }
 
     @Override
-    protected ArrayList<WodEntry> doInBackground(String... urls) {
+    protected void onHandleIntent(Intent intent) {
         ArrayList<WodEntry> entries = new ArrayList<WodEntry>();
         try {
-            entries = loadXmlFromNetwork(urls[0]);
+            entries = loadXmlFromNetwork(URL);
         } catch (IOException e) {                                                                   // TODO Make sure the app sets up the alarms even when there isn't an internet connection.
             Log.w(TAG, "IOException downloading rss feed");
-            xmlChecker.entriesReceived(null, false);                                                // FIXME These calls just go back to the WodList the first time (or anytime the WodList is the caller).
         } catch (XmlPullParserException e) {
             Log.w(TAG, "Xml parsing exception downloading rss feed");
-            xmlChecker.entriesReceived(null, false);
         }
-        return entries;
-    }
 
-    @Override
-    protected void onPostExecute(ArrayList<WodEntry> results) {
-        if (!results.isEmpty()) {
-            boolean wereResultsUpdated = checkIfUpdated(results);
-            xmlChecker.entriesReceived(results, wereResultsUpdated);
-        }
+        boolean wereEntriesUpdated = checkIfUpdated(entries);
+
+        Intent outgoingIntent = new Intent();
+        outgoingIntent.putExtra(WERE_ENTRIES_UPDATED, wereEntriesUpdated);
+        outgoingIntent.putParcelableArrayListExtra(ENTRIES, entries);
+        outgoingIntent.setAction("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
+        sendOrderedBroadcast(outgoingIntent, null);
     }
 
     /* Uploads XML from source url, parses the title, link, and originalHtmlDescription, and puts it
@@ -65,9 +60,8 @@ public class WodDownloader extends AsyncTask<String, Void, ArrayList<WodEntry>> 
         InputStream stream = null;
         ArrayList<WodEntry> entries = null;
         try {
-            XmlParser xmlParser = new XmlParser();
             stream = downloadUrl(urlString);
-            entries = xmlParser.parse(stream);
+            entries = XmlParser.parse(stream);
         } finally {
             if (stream != null) stream.close();
         }
@@ -85,19 +79,20 @@ public class WodDownloader extends AsyncTask<String, Void, ArrayList<WodEntry>> 
         return conn.getInputStream();
     }
 
-    private boolean checkIfUpdated(ArrayList<WodEntry> results) {
-        String justDownloadedEntry = results.get(0).title;
-        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+    private boolean checkIfUpdated(ArrayList<WodEntry> entries) {
+
+        if (entries.isEmpty()) return false;
+
+        String justDownloadedEntry = entries.get(0).title;
+        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean wereResultsUpdated;
-        String lastDownloadPrefKey =
-                context.getResources().getString(R.string.pref_last_downloaded_wod);
+        String lastDownloadPrefKey = getResources().getString(R.string.pref_last_downloaded_wod);
 
         if (sPrefs.contains(lastDownloadPrefKey)) {
             String lastDownloadedEntry = sPrefs.getString(lastDownloadPrefKey, null);
             if (lastDownloadedEntry.equals(justDownloadedEntry)) {
                 Log.d(TAG, "Downloaded entries same as previous.");
                 wereResultsUpdated = false;
-//                wereResultsUpdated = true;                                                        // TESTING (alarm)
             } else {
                 Log.d(TAG, "Downloaded updated entries.");
                 updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
@@ -107,9 +102,6 @@ public class WodDownloader extends AsyncTask<String, Void, ArrayList<WodEntry>> 
             Log.d(TAG, "First time downloading entries.");
             updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
             wereResultsUpdated = false;
-
-            // Start first alarm
-            new AlarmManagerBroadcastReceiver(context);
         }
         return wereResultsUpdated;
     }

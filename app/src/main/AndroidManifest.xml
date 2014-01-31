@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mattchowning.wodnotifier">
+    package="com.mattchowning.wodnotifier" >
 
     <application
         android:allowBackup="true"
@@ -8,21 +8,25 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.mattchowning.wodnotifier.MainActivity"
+            android:name=".Views.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/settings_title"
-        />
+            android:name=".Views.SettingsActivity"
+            android:label="@string/settings_title" />
+
+        <service
+            android:name=".UpdateService"
+            android:enabled="true">
+        </service>
 
         <receiver
-            android:name="com.mattchowning.wodnotifier.AlarmManagerBroadcastReceiver"
+            android:name=".AlarmReceiver"
             android:enabled="false"
             android:exported="true" >
             <intent-filter>
@@ -30,7 +34,27 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
+
                 <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".ScheduleUpdateReceiver"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter
+               android:priority="1000">
+                <action android:name="com.mattchowning.wodnotifier.UPDATE_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".SendNotificationReceiver"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.mattchowning.wodnotifier.UPDATE_COMPLETED" />
             </intent-filter>
         </receiver>
 
