@@ -6,8 +6,7 @@ import org.junit.Test;
 
 import org.robolectric.RobolectricTestRunner;
 
-import dalvik.annotation.TestTargetClass;
-
+//import dalvik.annotation.TestTargetClass;
 
 @RunWith(RobolectricTestRunner.class)
 public class Test_WodEntry {

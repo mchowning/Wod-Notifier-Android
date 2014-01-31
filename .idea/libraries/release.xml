@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="release">
-    <CLASSES>
-      <root url="file://$PROJECT_DIR$/app/build/classes/release" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

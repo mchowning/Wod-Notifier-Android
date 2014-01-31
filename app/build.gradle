@@ -1,29 +1,49 @@
+//buildscript {
+//    repositories {
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath 'com.android.tools.build:gradle:0.7.0'
+//    }
+//}
+
 apply plugin: 'android'
 
 // ------------- Begin added info for Robolectric testing
 
-//sourceSets {
-//    unitTest {
-//        java.srcDir file('src/test/java')
-////        resources.srcDir file('src/test/res')
-//    }
-//}
-//
-//dependencies {
-//    repositories {
-//        mavenCentral()
-//    }
-//    unitTestCompile files("$project.buildDir/classes/release")
-//    unitTestCompile 'junit:junit:4.10'
-//    unitTestCompile 'org.robolectric:robolectric:2.1.+'
-//    unitTestCompile 'com.google.android:android:4.0.1.2'
-//}
-//
-//task unitTest(type:Test, dependsOn: assemble) {
-//    testClassesDir = project.sourceSets.unitTest.output.classesDir
-//    classpath = project.sourceSets.unitTest.runtimeClasspath
-//}
+sourceSets {
+    unitTest {
+        java.srcDir file('src/test/java')
+        resources.srcDir file('src/test/res')
+    }
+}
+
+configurations {
+    unitTestCompile.extendsFrom runtime
+    unitTestRuntime.extendsFrom unitTestCompile
+}
+
+dependencies {
+    repositories {
+        mavenCentral()
+    }
+    unitTestCompile files("$project.buildDir/classes/release")
+    unitTestCompile 'junit:junit:4.10'
+    unitTestCompile 'org.robolectric:robolectric:2.1.+'
+    unitTestCompile 'com.google.android:android:4.0.1.2'
+
+
+    compile 'com.android.support:appcompat-v7:+'
+    compile 'com.android.support:support-v4:18.0.0'
+}
+
+task unitTest(type:Test, dependsOn: assemble) {
+    description = "run unit tests"
+    testClassesDir = project.sourceSets.unitTest.output.classesDir
+    classpath = project.sourceSets.unitTest.runtimeClasspath
+}
 //check.dependsOn unitTest
+build.dependsOn unitTest
 // -------------- End added info for Robolectric testing
 
 android {
@@ -44,12 +64,13 @@ android {
     }
 
     // Move the default instrument tests to src/tests so that folder is read as a source folder
-//    sourceSets {
-//        instrumentTest.setRoot('src/test')
-//    }
+    sourceSets {
+        instrumentTest.setRoot('src/test')
+    }
 }
 
-dependencies {
-    compile 'com.android.support:appcompat-v7:+'
-    compile 'com.android.support:support-v4:18.0.0'
-}
+//allprojects {
+//    tasks.withType(Compile) {
+//        options.compilerArgs << "-Xlint:deprecation"
+//    }
+//}
