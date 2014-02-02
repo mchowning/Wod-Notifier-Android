@@ -35,7 +35,8 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pIntent = PendingIntent.getBroadcast(context, INTERVAL_ALARM_REQUEST_CODE, intent, 0);
+        PendingIntent pIntent =
+                PendingIntent.getBroadcast(context, INTERVAL_ALARM_REQUEST_CODE, intent, 0);
         am.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, alarmInterval, pIntent);
     }
 

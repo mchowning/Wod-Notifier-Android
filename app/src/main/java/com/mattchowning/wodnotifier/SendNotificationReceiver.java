@@ -24,7 +24,7 @@ public class SendNotificationReceiver extends BroadcastReceiver {
     private static boolean notificationVibrate = false;
 
     @Override
-    public void onReceive(Context context, Intent intent) {                                         // FIXME When clicking a notification, I then have to back out twice to exit -- fix the back stack!
+    public void onReceive(Context context, Intent intent) {
 
         boolean receivedUpdate = intent.getBooleanExtra(UpdateService.WERE_ENTRIES_UPDATED, false);
 
@@ -41,7 +41,7 @@ public class SendNotificationReceiver extends BroadcastReceiver {
 
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context)
-                            .setSmallIcon(R.drawable.ic_launcher)                                       // TODO Fix icon to be consistent with Android guidelines
+                            .setSmallIcon(R.drawable.ic_launcher)                                   // TODO Fix icon to be consistent with Android guidelines
                             .setContentTitle(title)
                             .setTicker(title)
                             .setContentText(text)
@@ -68,6 +68,7 @@ public class SendNotificationReceiver extends BroadcastReceiver {
             mBuilder.setStyle(bigTextStyle);
 
             Intent onClickIntent = new Intent(context, MainActivity.class);
+            onClickIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             PendingIntent pIntent = PendingIntent.getActivity(context, 0, onClickIntent, 0);
             mBuilder.setContentIntent(pIntent);
             NotificationManager mNotificationManager = (NotificationManager)
