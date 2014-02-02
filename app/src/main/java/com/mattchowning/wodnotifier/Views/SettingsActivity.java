@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.mattchowning.wodnotifier.R;
-import com.mattchowning.wodnotifier.ScheduleUpdateReceiver;
+import com.mattchowning.wodnotifier.UpdateSchedulerReceiver;
 import com.mattchowning.wodnotifier.SendNotificationReceiver;
 import com.mattchowning.wodnotifier.UpdateService;
 
@@ -55,7 +55,7 @@ public class SettingsActivity extends Activity implements
                 Intent intent = new Intent(this, UpdateService.class);
                 startService(intent);
             } else {
-                ScheduleUpdateReceiver.cancelAlarm(this);
+                UpdateSchedulerReceiver.cancelAllAlarms(this);
             }
 
         } else if (key.equals(soundPrefKey)) {

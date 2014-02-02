@@ -22,8 +22,8 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Intent newServiceIntent = new Intent(context, UpdateService.class);
-        context.startService(newServiceIntent);
+        Intent serviceIntent = new Intent(context, UpdateService.class);
+        context.startService(serviceIntent);
 
         if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
             if (intent.getData().getSchemeSpecificPart().equals(context.getPackageName())) {
@@ -35,7 +35,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             Log.d(TAG, "Wod Notifier broadcast receiver notified that a boot was completed");
         } else { // TODO Specifically define to my calling package and create an error else clause
             Log.d(TAG, "Wod Notifier broadcast receiver alerted by something else--probably " +
-                    "my ScheduleUpdateReceiver");
+                    "my UpdateSchedulerReceiver");
         }
     }
 
