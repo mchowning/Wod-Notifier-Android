@@ -1,10 +1,10 @@
 package com.mattchowning.wodnotifier;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 /*
@@ -12,7 +12,7 @@ import android.util.Log;
  * -----------------------------
  * Handles scheduling of future checks of the website for updates.
  */
-public class AlarmReceiver extends BroadcastReceiver {
+public class AlarmReceiver extends WakefulBroadcastReceiver {
 
     private static final String TAG = AlarmReceiver.class.getName();
 
@@ -23,7 +23,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         Intent serviceIntent = new Intent(context, UpdateService.class);
-        context.startService(serviceIntent);
+        startWakefulService(context, serviceIntent); // Engages wakelock and starts service
 
         if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
             if (intent.getData().getSchemeSpecificPart().equals(context.getPackageName())) {

@@ -51,6 +51,7 @@ public class UpdateService extends IntentService {
         outgoingIntent.putParcelableArrayListExtra(ENTRIES, entries);
         outgoingIntent.setAction("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
         sendOrderedBroadcast(outgoingIntent, null);
+        AlarmReceiver.completeWakefulIntent(intent); // Releases wakelock held by AlarmReceiver
     }
 
     /* Uploads XML from source url, parses the title, link, and originalHtmlDescription, and puts it

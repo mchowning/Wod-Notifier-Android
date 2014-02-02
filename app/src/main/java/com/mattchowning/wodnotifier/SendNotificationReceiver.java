@@ -24,7 +24,7 @@ public class SendNotificationReceiver extends BroadcastReceiver {
     private static boolean notificationVibrate = false;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, Intent intent) {                                         // FIXME When clicking a notification, I then have to back out twice to exit -- fix the back stack!
 
         boolean receivedUpdate = intent.getBooleanExtra(UpdateService.WERE_ENTRIES_UPDATED, false);
 
