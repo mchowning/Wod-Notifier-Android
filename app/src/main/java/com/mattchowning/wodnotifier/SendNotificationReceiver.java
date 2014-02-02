@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -41,7 +42,9 @@ public class SendNotificationReceiver extends BroadcastReceiver {
 
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context)
-                            .setSmallIcon(R.drawable.ic_launcher)                                   // TODO Fix icon to be consistent with Android guidelines
+                            .setLargeIcon((((BitmapDrawable)context.getResources().
+                                    getDrawable(R.drawable.ic_launcher)).getBitmap()))
+                            .setSmallIcon(R.drawable.notification_icon_1)
                             .setContentTitle(title)
                             .setTicker(title)
                             .setContentText(text)
