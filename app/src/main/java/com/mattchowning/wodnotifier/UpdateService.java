@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.mattchowning.wodnotifier.Views.WodList;
 
@@ -39,9 +38,7 @@ public class UpdateService extends IntentService {
         try {
             entries = loadXmlFromNetwork(URL);
         } catch (IOException e) {                                                                   // TODO Make sure the app sets up the alarms even when there isn't an internet connection.
-            Log.w(TAG, "IOException downloading rss feed");
         } catch (XmlPullParserException e) {
-            Log.w(TAG, "Xml parsing exception downloading rss feed");
         }
 
         boolean wereEntriesUpdated = checkIfUpdated(entries);
@@ -92,15 +89,12 @@ public class UpdateService extends IntentService {
         if (sPrefs.contains(lastDownloadPrefKey)) {
             String lastDownloadedEntry = sPrefs.getString(lastDownloadPrefKey, null);
             if (lastDownloadedEntry.equals(justDownloadedEntry)) {
-                Log.d(TAG, "Downloaded entries same as previous.");
                 wereResultsUpdated = false;
             } else {
-                Log.d(TAG, "Downloaded updated entries.");
                 updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
                 wereResultsUpdated = true;
             }
         } else {
-            Log.d(TAG, "First time downloading entries.");
             updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
             wereResultsUpdated = false;
         }

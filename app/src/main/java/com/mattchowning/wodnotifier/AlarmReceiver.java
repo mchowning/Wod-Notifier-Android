@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.util.Log;
 
 /*
  * AlarmReceiver
@@ -27,15 +26,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
         if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
             if (intent.getData().getSchemeSpecificPart().equals(context.getPackageName())) {
-                Log.d(TAG, "Wod Notifier broadcast receiver notified that THIS package is/was replaced");
             } else {
-                Log.d(TAG, "Wod Notifier broadcast receiver notified that a DIFFERENT package is/was replaced");
             }
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Log.d(TAG, "Wod Notifier broadcast receiver notified that a boot was completed");
         } else { // TODO Specifically define to my calling package and create an error else clause
-            Log.d(TAG, "Wod Notifier broadcast receiver alerted by something else--probably " +
-                    "my UpdateSchedulerReceiver");
         }
     }
 

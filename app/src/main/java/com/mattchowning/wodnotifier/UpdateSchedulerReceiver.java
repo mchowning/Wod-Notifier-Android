@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.util.Calendar;
 
@@ -46,22 +45,18 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
             case 17:    // 5:00 p.m.
             case 18:    // 6:00 p.m.
                 alarmInterval = AlarmManager.INTERVAL_HALF_HOUR;
-                Log.d(TAG, "Setting inexact alarm interval of 30 minutes");
                 break;
             case 19:    // 7:00 p.m.
             case 20:    // 8:00 p.m.
             case 21:    // 9:00 p.m.
                 alarmInterval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
-                Log.d(TAG, "Setting inexact alarm interval of 15 minutes");
                 break;
             case 22:    // 10:00 p.m.
             case 23:    // 11:00 p.m.
                 alarmInterval = AlarmManager.INTERVAL_HALF_HOUR;
-                Log.d(TAG, "Setting inexact alarm interval of 30 minutes");
                 break;
             default:
                 alarmInterval = AlarmManager.INTERVAL_HOUR;
-                Log.d(TAG, "Setting inexact alarm interval of 1 hour");
                 break;
         }
         return alarmInterval;
@@ -89,14 +84,12 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
         PendingIntent pIntent = PendingIntent.getBroadcast(context, DAILY_ALARM_REQUEST_CODE, intent,0);
         am.setRepeating(AlarmManager.RTC_WAKEUP, startTime, AlarmManager.INTERVAL_DAY, pIntent);
 
-        Log.d(TAG, "Setting daily alarm of " + alarmHour + " hour and " + alarmMinute + " minute");
     }
 
     // Cancels any alarm that has a matching pending intent.  Since all the alarms are set with
     // the same pending intent, this effectively cancels any set alarm.  This method also
     // disables the receiver.
     public static void cancelAllAlarms(Context context) {
-        Log.d(TAG, "Cancelling all alarms and disabling the receiver");
         cancelAlarm(context, DAILY_ALARM_REQUEST_CODE);
         cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
         AlarmReceiver.setReceiverEnabledStatus(context, false);

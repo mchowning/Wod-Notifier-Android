@@ -3,7 +3,6 @@ package com.mattchowning.wodnotifier;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Html;
-import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,10 +49,8 @@ public class WodEntry implements Parcelable {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
                 date = sdf.parse(title);
             } catch (ParseException ex) {
-                Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
             }
         } else {
-            Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
         }
     }
 
