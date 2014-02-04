@@ -1,4 +1,4 @@
-package com.mattchowning.wodnotifier;
+package com.mattchowning.wodnotifier.Views;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -7,6 +7,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.mattchowning.wodnotifier.BuildConfig;
+import com.mattchowning.wodnotifier.R;
 
 /*
  * MainActivity
@@ -51,7 +54,9 @@ public class MainActivity extends ActionBarActivity {
         } else if (id == R.id.action_help) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.action_help);
-            builder.setMessage(getString(R.string.action_help_message) + "\n\n" +
+            builder.setMessage("Don't forget that clicking on a Wod's header " +
+                    "takes you straight to the CFR website." + "\n\n" +
+                    getString(R.string.action_help_message) + "\n\n" +
                     getString(R.string.action_help_contact) + "\n\n" +
                     getString(R.string.app_version_string) +
                     BuildConfig.VERSION_NAME);

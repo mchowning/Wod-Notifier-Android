@@ -3,12 +3,12 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mattchowning.wodnotifier.MainActivity"
+    tools:context="com.mattchowning.wodnotifier.Views.MainActivity"
     tools:ignore="MergeRootFrame"
     >
 
     <fragment
-        android:name="com.mattchowning.wodnotifier.WodList"
+        android:name="com.mattchowning.wodnotifier.Views.WodList"
         android:id="@+id/wod_list_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,9 +1,15 @@
-package com.mattchowning.wodnotifier;
+package com.mattchowning.wodnotifier.Views;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+
+import com.mattchowning.wodnotifier.R;
+import com.mattchowning.wodnotifier.UpdateSchedulerReceiver;
+import com.mattchowning.wodnotifier.SendNotificationReceiver;
+import com.mattchowning.wodnotifier.UpdateService;
 
 public class SettingsActivity extends Activity implements
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -46,18 +52,19 @@ public class SettingsActivity extends Activity implements
         if (key.equals(updateInBackgroundKey)) {
             boolean updatePref = sPrefs.getBoolean(updateInBackgroundKey, true);
             if (updatePref) {
-                new AlarmManagerBroadcastReceiver(this);
+                Intent intent = new Intent(this, UpdateService.class);
+                startService(intent);
             } else {
-                AlarmManagerBroadcastReceiver.cancelAlarm(this);
+                UpdateSchedulerReceiver.cancelAllAlarms(this);
             }
 
         } else if (key.equals(soundPrefKey)) {
             boolean soundPref = sPrefs.getBoolean(soundPrefKey, false);
-            AlarmManagerBroadcastReceiver.setNotificationSound(soundPref);
+            SendNotificationReceiver.setNotificationSound(soundPref);
 
         } else if (key.equals(vibratePrefKey)) {
             boolean vibratePref = sPrefs.getBoolean(vibratePrefKey, false);
-            AlarmManagerBroadcastReceiver.setNotificationVibrate(vibratePref);
+            SendNotificationReceiver.setNotificationVibrate(vibratePref);
         }
     }
 }

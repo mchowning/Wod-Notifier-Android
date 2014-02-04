@@ -31,7 +31,7 @@ public class XmlParser {
 
     private static final String ns = null;  // TODO Not sure what the point of this is...
 
-    public ArrayList<WodEntry> parse(InputStream in) throws XmlPullParserException, IOException {
+    public static ArrayList<WodEntry> parse(InputStream in) throws XmlPullParserException, IOException {
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -44,7 +44,7 @@ public class XmlParser {
         }
     }
 
-    private ArrayList<WodEntry> readRss(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static ArrayList<WodEntry> readRss(XmlPullParser parser) throws XmlPullParserException, IOException {
         ArrayList<WodEntry> entries = new ArrayList<WodEntry>();
         parser.require(XmlPullParser.START_TAG, ns, "rss"); // Tests to make sure at proper ("rss") position
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -59,7 +59,7 @@ public class XmlParser {
         return entries;
     }
 
-    private ArrayList<WodEntry> readChannel(XmlPullParser parser, ArrayList<WodEntry> entries)
+    private static ArrayList<WodEntry> readChannel(XmlPullParser parser, ArrayList<WodEntry> entries)
             throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "channel"); // Test to make sure at proper ("channel") position
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -74,7 +74,7 @@ public class XmlParser {
         return entries;
     }
 
-    private WodEntry readEntry(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static WodEntry readEntry(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "item"); // Test to make sure at proper ("item") position
         String title = null;
         String link = null;
@@ -96,14 +96,14 @@ public class XmlParser {
         return new WodEntry(title, link, htmlDescription);
     }
 
-    private String readTitle(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static String readTitle(XmlPullParser parser) throws XmlPullParserException, IOException {
        parser.require(XmlPullParser.START_TAG, ns, "title");
        String title = readText(parser); // FIXME Change variable name
        parser.require(XmlPullParser.END_TAG, ns, "title");
        return title;
    }
 
-    private String readLink(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static String readLink(XmlPullParser parser) throws XmlPullParserException, IOException {
         String link = "";
         parser.require(XmlPullParser.START_TAG, ns, "link");
         String tag = parser.getName();  // Does this line just duplicate the previous line?
@@ -114,14 +114,14 @@ public class XmlParser {
         return link;
     }
 
-    private String readDescription(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static String readDescription(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "description");
         String description = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, "description");
         return description;
     }
 
-    private String readText(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static String readText(XmlPullParser parser) throws XmlPullParserException, IOException {
         String result = "";
         if (parser.next() == XmlPullParser.TEXT) {
             result = parser.getText();
@@ -131,7 +131,7 @@ public class XmlParser {
     }
 
     /* Takes a parser at a starting tag and skips that entire tag, including any tags it contains. */
-    private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
         if (parser.getEventType() != XmlPullParser.START_TAG) throw new IllegalStateException();
         int depth = 1;
         while (depth != 0) {
