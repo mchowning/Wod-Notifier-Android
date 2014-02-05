@@ -25,12 +25,8 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         Intent serviceIntent = new Intent(context, UpdateService.class);
         startWakefulService(context, serviceIntent); // Engages wakelock and starts service
 
-        if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
-            if (intent.getData().getSchemeSpecificPart().equals(context.getPackageName())) {
-                Log.d(TAG, "Wod Notifier broadcast receiver notified that THIS package is/was replaced");
-            } else {
-                Log.d(TAG, "Wod Notifier broadcast receiver notified that a DIFFERENT package is/was replaced");
-            }
+        if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+            Log.d(TAG, "Wod Notifier broadcast receiver notified that THIS package is/was replaced");
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             Log.d(TAG, "Wod Notifier broadcast receiver notified that a boot was completed");
         } else { // TODO Specifically define to my calling package and create an error else clause
