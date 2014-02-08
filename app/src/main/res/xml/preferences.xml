@@ -13,7 +13,7 @@
         android:title="@string/settings_notification_sound"
         android:defaultValue="false"
         android:summaryOff="Silent"
-        android:summaryOn="Default notification sound"
+        android:summaryOn="Play selected notification sound"
         android:dependency="@string/pref_background_updates" />
 
     <CheckBoxPreference

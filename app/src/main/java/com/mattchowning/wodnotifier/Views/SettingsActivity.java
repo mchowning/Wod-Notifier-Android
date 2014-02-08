@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 
 import com.mattchowning.wodnotifier.R;
 import com.mattchowning.wodnotifier.UpdateSchedulerReceiver;
-import com.mattchowning.wodnotifier.SendNotificationReceiver;
 import com.mattchowning.wodnotifier.UpdateService;
 
 public class SettingsActivity extends Activity implements
@@ -44,12 +43,8 @@ public class SettingsActivity extends Activity implements
     // preference.
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
         String updateInBackgroundKey = getResources().getString(R.string.pref_background_updates);
-        String soundPrefKey = getResources().getString(R.string.pref_notification_sound);
-        String vibratePrefKey = getResources().getString(R.string.pref_notification_vibrate);
-
-        if (key.equals(updateInBackgroundKey)) {                                                    // TODO Change to switch statement with API19 and Java 1.7
+        if (key.equals(updateInBackgroundKey)) {
             boolean updatePref = sPrefs.getBoolean(updateInBackgroundKey, true);
             if (updatePref) {
                 Intent intent = new Intent(this, UpdateService.class);
@@ -57,14 +52,6 @@ public class SettingsActivity extends Activity implements
             } else {
                 UpdateSchedulerReceiver.cancelAllAlarms(this);
             }
-
-        } else if (key.equals(soundPrefKey)) {
-            boolean soundPref = sPrefs.getBoolean(soundPrefKey, false);
-            SendNotificationReceiver.notificationSound = soundPref;
-
-        } else if (key.equals(vibratePrefKey)) {
-            boolean vibratePref = sPrefs.getBoolean(vibratePrefKey, false);
-            SendNotificationReceiver.notificationVibrate = vibratePref;
         }
     }
 }

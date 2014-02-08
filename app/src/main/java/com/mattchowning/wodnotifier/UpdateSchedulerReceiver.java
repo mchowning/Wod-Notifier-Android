@@ -22,7 +22,7 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
         if (resultsUpdated) {
             cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
         } else {
-            setIntervalAlarm(context);                                                              // FIXME This alarm is started if the user checks the app before the daily alarm fires.
+            setIntervalAlarm(context);                                                              // FIXME The interval alarm is started if the user checks the app before the daily alarm fires.
         }
         setDailyAlarm(context);
     }
@@ -94,7 +94,7 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
 
     // Cancels any alarm that has a matching pending intent.  Since all the alarms are set with
     // the same pending intent, this effectively cancels any set alarm.  This method also
-    // disables the receiver.
+    // disables this BroadcastReceiver.
     public static void cancelAllAlarms(Context context) {
         Log.d(TAG, "Cancelling all alarms and disabling the receiver");
         cancelAlarm(context, DAILY_ALARM_REQUEST_CODE);
