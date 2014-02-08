@@ -21,8 +21,8 @@ import java.util.ArrayList;
 
 public class SendNotificationReceiver extends BroadcastReceiver {
 
-    private static boolean notificationSound = false;
-    private static boolean notificationVibrate = false;
+    public static boolean notificationSound = false;
+    public static boolean notificationVibrate = false;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -51,13 +51,28 @@ public class SendNotificationReceiver extends BroadcastReceiver {
                             .setLights(Color.WHITE, 500, 2000)
                             .setAutoCancel(true);
 
-            SharedPreferences sPrefs =
-                    PreferenceManager.getDefaultSharedPreferences(context);
-
             // Set notification to have sound if specified by preferences.
             if (notificationSound) {
-                Uri nSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                mBuilder.setSound(nSound);
+
+                /* Cannot assign this using the onSharedPreferencesChanged method like I do with the
+                other variables because for some reason changes to the default ringtone do not
+                cause that method to fire.  Apparently this is an android bug:
+                stackoverflow.com/questions/6725105/ringtonepreference-not-firing-onsharedpreferencechanged
+                */
+                SharedPreferences sPrefs =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                String soundChangePrefKey =
+                        context.getResources().getString(R.string.pref_notification_sound_selection);
+                String strSelectedNotificationSound =
+                        sPrefs.getString(soundChangePrefKey, null);
+                Uri selectedNotificationSound;
+                if (strSelectedNotificationSound == null) {
+                    selectedNotificationSound =
+                            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                } else {
+                    selectedNotificationSound = Uri.parse(strSelectedNotificationSound);
+                }
+                mBuilder.setSound(selectedNotificationSound);
             }
 
             // Set notification to vibrate if specified by preferences.
@@ -78,24 +93,5 @@ public class SendNotificationReceiver extends BroadcastReceiver {
                     context.getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(0, mBuilder.build());
         }
-    }
-
-    public static void setNotificationSound(boolean soundPref) {
-        notificationSound = soundPref;
-    }
-
-    public static void setNotificationVibrate(boolean vibratePref) {
-        notificationVibrate = vibratePref;
-    }
-
-    // Sets the receiver's enabled status in the AndroidManifest.  Note that a context has to be
-    // passed to this method because it may be called before the onReceive method is called and
-    // therefore the context may be null.
-    private static void setReceiverEnabledStatus(Context context, boolean isEnabled) {
-        ComponentName receiver = new ComponentName(context, AlarmReceiver.class);
-        PackageManager pm = context.getPackageManager();
-        int status = (isEnabled) ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
-        pm.setComponentEnabledSetting(receiver, status, PackageManager.DONT_KILL_APP);
     }
 }

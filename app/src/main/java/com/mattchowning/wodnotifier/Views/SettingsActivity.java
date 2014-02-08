@@ -48,8 +48,8 @@ public class SettingsActivity extends Activity implements
         String updateInBackgroundKey = getResources().getString(R.string.pref_background_updates);
         String soundPrefKey = getResources().getString(R.string.pref_notification_sound);
         String vibratePrefKey = getResources().getString(R.string.pref_notification_vibrate);
-                                                                                                    // TODO Change to switch statement with API19 and Java 1.7
-        if (key.equals(updateInBackgroundKey)) {
+
+        if (key.equals(updateInBackgroundKey)) {                                                    // TODO Change to switch statement with API19 and Java 1.7
             boolean updatePref = sPrefs.getBoolean(updateInBackgroundKey, true);
             if (updatePref) {
                 Intent intent = new Intent(this, UpdateService.class);
@@ -60,11 +60,11 @@ public class SettingsActivity extends Activity implements
 
         } else if (key.equals(soundPrefKey)) {
             boolean soundPref = sPrefs.getBoolean(soundPrefKey, false);
-            SendNotificationReceiver.setNotificationSound(soundPref);
+            SendNotificationReceiver.notificationSound = soundPref;
 
         } else if (key.equals(vibratePrefKey)) {
             boolean vibratePref = sPrefs.getBoolean(vibratePrefKey, false);
-            SendNotificationReceiver.setNotificationVibrate(vibratePref);
+            SendNotificationReceiver.notificationVibrate = vibratePref;
         }
     }
 }

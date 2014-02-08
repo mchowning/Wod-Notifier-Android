@@ -22,4 +22,12 @@
         android:defaultValue="false"
         android:dependency="@string/pref_background_updates" />
 
+    <RingtonePreference
+        android:key="@string/pref_notification_sound_selection"
+        android:title="@string/settings_select_notification_sound"
+        android:ringtoneType="notification"
+        android:showDefault="true"
+        android:defaultValue="content://settings/system/notification_sound"
+        android:dependency="@string/pref_background_updates" />
+
 </PreferenceScreen>
