@@ -21,9 +21,7 @@ public class WodEntry implements Parcelable {
                                             // CFR in the form of [MM]/[DD]/[YY]
     public String link;                     // XML link field to CFR posting of Wod
     public String originalHtmlDescription;  // Original XML description field of the Wod in html
-    public String plainTextDescription;     // Description of the Wod in plain text
-    public Date date;                                                                               // TODO I need to have some sort of date that I can store in my database in case the format changes
-                                                                                                    // someday and the title is no longer the date.
+
     private static final String TAG = WodEntry.class.getName();
 
     public WodEntry(long id, String title, String link, String originalHtmlDescription) {
@@ -31,8 +29,6 @@ public class WodEntry implements Parcelable {
         this.title = title;
         this.link = link;
         this.originalHtmlDescription = originalHtmlDescription;
-        setDescription();
-        setDate();
     }
 
     public WodEntry(String title, String link, String originalHtmlDescription) {
@@ -44,45 +40,51 @@ public class WodEntry implements Parcelable {
         title = parcel.readString();
         link = parcel.readString();
         originalHtmlDescription = parcel.readString();
-        setDescription();
-        setDate();
+        getPlainTextDescription();
+        getDate();
     }
 
     // Parses the title into a date, but only if it is of the format MM/DD/YY, MM-DD-YY, or MM\DD\YY
-    private void setDate() {
-        if (title == null) return;
+    public Date getDate() {
+        Date result = null;
         String dateFormatRegExp = "\\d\\d[-\\/\\\\]\\d\\d[-\\/\\\\]\\d\\d";
-        if (title.matches(dateFormatRegExp)) {
+        if (title != null && title.matches(dateFormatRegExp)) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
-                date = sdf.parse(title);
+                result = sdf.parse(title);
             } catch (ParseException ex) {
                 Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
             }
         } else {
             Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
         }
+        return result;
     }
 
     /* This method sets the description by taking the html description, converting it to plain text,
     then removing everything from "*Post results to comments on" on if
     that substring is present.  Last, the method then removes any new line characters at the end
     of the string. */
-    private void setDescription() {
-        if (originalHtmlDescription == null) return;
-        String plaintTextDescription = Html.fromHtml(originalHtmlDescription).toString();
-        String breakingPoint = "*Post results to comments";
-        int indexOfBreakingPoint = (plaintTextDescription.contains(breakingPoint)) ?
-                plaintTextDescription.indexOf(breakingPoint) : plaintTextDescription.length();
-        while (true) {
-            char lastChar = plaintTextDescription.charAt(indexOfBreakingPoint - 1);
-            if (lastChar == '\n') {
-                indexOfBreakingPoint--;
-            } else {
-                break;
-            }
+    public String getPlainTextDescription() {
+        String result = null;
+        if (originalHtmlDescription != null) {
+            result = Html.fromHtml(originalHtmlDescription).toString();
         }
-        plainTextDescription = plaintTextDescription.substring(0, indexOfBreakingPoint);
+        return result;
+
+        // If I want to break out the Wod portion
+//        String breakingPoint = "*Post results to comments";
+//        int indexOfBreakingPoint = (plainTextDescription.contains(breakingPoint)) ?
+//                plainTextDescription.indexOf(breakingPoint) : plainTextDescription.length();
+//        while (true) {
+//            char lastChar = plainTextDescription.charAt(indexOfBreakingPoint - 1);
+//            if (lastChar == '\n') {
+//                indexOfBreakingPoint--;
+//            } else {
+//                break;
+//            }
+//        }
+//        plainTextDescription = plainTextDescription.substring(0, indexOfBreakingPoint);
     }
 
     @Override

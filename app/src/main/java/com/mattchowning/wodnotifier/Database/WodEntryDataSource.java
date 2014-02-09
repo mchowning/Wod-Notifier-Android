@@ -85,6 +85,10 @@ public class WodEntryDataSource {
         return entries;
     }
 
+    public Cursor getCursor() {
+       return database.rawQuery("SELECT * FROM " + MySQLiteHelper.TABLE_WOD_ENTRIES, null);
+    }
+
     private WodEntry cursorToWod(Cursor cursor) {
         long id = cursor.getLong(0);
         String title = cursor.getString(1);

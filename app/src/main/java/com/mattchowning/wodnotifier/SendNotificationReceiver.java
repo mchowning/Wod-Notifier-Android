@@ -33,7 +33,7 @@ public class SendNotificationReceiver extends BroadcastReceiver {
             ArrayList<WodEntry> entries = intent.getParcelableArrayListExtra(UpdateService.ENTRIES);
             if (entries.isEmpty()) return; // ArrayList should never be empty, so this should never happen
             WodEntry firstEntry = entries.get(0);
-            String notificationText = firstEntry.title + "\n" + firstEntry.plainTextDescription;
+            String notificationText = firstEntry.title + "\n" + firstEntry.getPlainTextDescription();
             String notificationTitle = context.getResources().getString(R.string.notification_title);
             buildNotification(notificationTitle, notificationText);
         }

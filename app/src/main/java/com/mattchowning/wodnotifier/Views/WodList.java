@@ -1,11 +1,11 @@
 package com.mattchowning.wodnotifier.Views;
 
-import android.app.Activity;
 import android.app.ListFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +14,9 @@ import android.view.ViewGroup;
 import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.R;
 import com.mattchowning.wodnotifier.UpdateService;
-import com.mattchowning.wodnotifier.WodEntry;
 import com.mattchowning.wodnotifier.WodEntryAdapter;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 /*
  * WodList
@@ -38,6 +36,7 @@ public class WodList extends ListFragment {
 
     private static final String URL =
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
+//    private WodEntryAdapter adapter;
     private WodEntryAdapter adapter;
     private BroadcastReceiver receiver;
     private WodEntryDataSource datasource;
@@ -64,11 +63,8 @@ public class WodList extends ListFragment {
 
     @Override
     public void onResume() {
-        try {
-            datasource.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        IntentFilter filter = new IntentFilter("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
+        filter.setPriority(1);
 
         receiver = new BroadcastReceiver() {
             @Override
@@ -76,20 +72,18 @@ public class WodList extends ListFragment {
                 // TODO update view with wods from database
             }
         };
-        IntentFilter filter = new IntentFilter("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
-        filter.setPriority(1);
         getActivity().registerReceiver(receiver, filter);
 
         Intent updateServiceIntent = new Intent(getActivity(), UpdateService.class);
         getActivity().startService(updateServiceIntent);
 
-        ArrayList<WodEntry> entries = (ArrayList<WodEntry>) datasource.getAllWods();
-        adapter.clear();
-        if (entries.isEmpty()) {
-            WodEntry emptyEntry = new WodEntry(0, "Entries unavailable", null, null);                       // TODO Handle lack of internet connection in a better way
-            adapter.add(emptyEntry);
-        } else {
-            adapter.addAll(entries);
+        try {
+            datasource.open();
+            Cursor cursor = datasource.getCursor();
+            adapter = new WodEntryAdapter(getActivity(), cursor, 0);
+            setListAdapter(adapter);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         super.onResume();
@@ -99,8 +93,6 @@ public class WodList extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        adapter = new WodEntryAdapter(getActivity(), android.R.layout.simple_spinner_item);
-        setListAdapter(adapter);
         return inflater.inflate(R.layout.fragment_wod_list, container, false);
     }
 
