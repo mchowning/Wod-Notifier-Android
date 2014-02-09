@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.Views.WodList;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -42,6 +44,16 @@ public class UpdateService extends IntentService {
             Log.w(TAG, "IOException downloading rss feed");
         } catch (XmlPullParserException e) {
             Log.w(TAG, "Xml parsing exception downloading rss feed");
+        }
+
+        WodEntryDataSource datasource = new WodEntryDataSource(this);
+        try {
+            datasource.open();
+            for (WodEntry entry : entries) {
+                datasource.addWodEntry(entry);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         boolean wereEntriesUpdated = checkIfUpdated(entries);

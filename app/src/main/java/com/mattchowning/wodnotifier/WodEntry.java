@@ -16,16 +16,18 @@ import java.util.Locale;
  * Simple class for holding data about the WOD for a particular day.
  */
 public class WodEntry implements Parcelable {
+    public long id;
     public String title;                    // XML title field from XML, which is the Wod's date at
                                             // CFR in the form of [MM]/[DD]/[YY]
     public String link;                     // XML link field to CFR posting of Wod
     public String originalHtmlDescription;  // Original XML description field of the Wod in html
     public String plainTextDescription;     // Description of the Wod in plain text
-    public Date date;
-
+    public Date date;                                                                               // TODO I need to have some sort of date that I can store in my database in case the format changes
+                                                                                                    // someday and the title is no longer the date.
     private static final String TAG = WodEntry.class.getName();
 
-    public WodEntry(String title, String link, String originalHtmlDescription) {
+    public WodEntry(long id, String title, String link, String originalHtmlDescription) {
+        this.id = id;
         this.title = title;
         this.link = link;
         this.originalHtmlDescription = originalHtmlDescription;
@@ -33,7 +35,12 @@ public class WodEntry implements Parcelable {
         setDate();
     }
 
+    public WodEntry(String title, String link, String originalHtmlDescription) {
+        this(0, title, link, originalHtmlDescription);
+    }
+
     public WodEntry(Parcel parcel) {
+        id = parcel.readLong();
         title = parcel.readString();
         link = parcel.readString();
         originalHtmlDescription = parcel.readString();
@@ -85,6 +92,7 @@ public class WodEntry implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(id);
         parcel.writeString(title);
         parcel.writeString(link);
         parcel.writeString(originalHtmlDescription);

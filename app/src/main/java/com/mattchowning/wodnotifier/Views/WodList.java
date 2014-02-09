@@ -11,11 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.R;
 import com.mattchowning.wodnotifier.UpdateService;
 import com.mattchowning.wodnotifier.WodEntry;
 import com.mattchowning.wodnotifier.WodEntryAdapter;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /*
@@ -38,6 +40,7 @@ public class WodList extends ListFragment {
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
     private WodEntryAdapter adapter;
     private BroadcastReceiver receiver;
+    private WodEntryDataSource datasource;
 
 //    @Override
 //    public void onAttach(Activity activity) {
@@ -51,24 +54,26 @@ public class WodList extends ListFragment {
 //        }
 //    }
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        datasource = new WodEntryDataSource(getActivity());
+//        datasource.open();
+    }
+
     @Override
     public void onResume() {
-        super.onResume();
+        try {
+            datasource.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                ArrayList<WodEntry> entries = intent.getParcelableArrayListExtra(UpdateService.ENTRIES);
-                adapter.clear();
-                if (entries == null || entries.isEmpty()) {
-                    WodEntry emptyEntry = new WodEntry("Entries unavailable", null, null);                       // TODO Handle lack of internet connection in a better way
-                    adapter.add(emptyEntry);
-                } else {
-                    adapter.addAll(entries);
-                }
-
-                // Make sure broadcast is not received by SendNotificationReceiver
-                abortBroadcast();
+                // TODO update view with wods from database
             }
         };
         IntentFilter filter = new IntentFilter("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
@@ -77,6 +82,17 @@ public class WodList extends ListFragment {
 
         Intent updateServiceIntent = new Intent(getActivity(), UpdateService.class);
         getActivity().startService(updateServiceIntent);
+
+        ArrayList<WodEntry> entries = (ArrayList<WodEntry>) datasource.getAllWods();
+        adapter.clear();
+        if (entries.isEmpty()) {
+            WodEntry emptyEntry = new WodEntry(0, "Entries unavailable", null, null);                       // TODO Handle lack of internet connection in a better way
+            adapter.add(emptyEntry);
+        } else {
+            adapter.addAll(entries);
+        }
+
+        super.onResume();
     }
 
     @Override
@@ -90,8 +106,13 @@ public class WodList extends ListFragment {
 
     @Override
     public void onPause() {
-        super.onPause();
+        try {
+            datasource.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         getActivity().unregisterReceiver(receiver);
+        super.onPause();
     }
 
 }
