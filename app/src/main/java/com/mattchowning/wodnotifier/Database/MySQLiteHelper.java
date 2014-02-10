@@ -21,15 +21,29 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_LINK = "link";
     public static final String COLUMN_DESCRIPTION = "description";
+    public static final String COLUMN_DATE = "date";
 
     private static final String DATABASE_NAME = "woddata.db";
     private static final int DATABASE_VERSION = 1;
 
     private static final String DATABASE_CREATE = "CREATE TABLE " +
             TABLE_WOD_ENTRIES + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, " +
-            COLUMN_TITLE + " TEXT, " + COLUMN_LINK + " TEXT, " + COLUMN_DESCRIPTION + ");";
+            COLUMN_TITLE + " TEXT, " + COLUMN_LINK + " TEXT, " + COLUMN_DESCRIPTION + " TEXT, " +
+            COLUMN_DATE + " TEXT);";
 
-    public MySQLiteHelper(Context context) { //, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    private static MySQLiteHelper instance;
+
+    // Apparently this has to be a singleton to avoid leaking SQLite Connections
+    // http://www.androiddesignpatterns.com/2012/05/correctly-managing-your-sqlite-database.html
+    public static MySQLiteHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new MySQLiteHelper(context);
+        }
+        return instance;
+
+    }
+
+    private MySQLiteHelper(Context context) { //, String name, SQLiteDatabase.CursorFactory factory, int version) {
 //        super(context, name, factory, version);
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

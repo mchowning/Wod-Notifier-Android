@@ -53,12 +53,12 @@ public class WodEntryAdapter extends CursorAdapter {
 
     private void fillHeadingView(View view, final Context context, WodEntry entry) {                // TODO Making this context final so I can use it in my onClickListener does not seem right
         TextView headingView = (TextView) view.findViewById(R.id.list_item_wod_date);
-        Date wodDate = entry.getDate();
+        Date wodDate = entry.date;
         if (wodDate != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.US);
-            String monthDayYear = sdf.format(wodDate.getTime());
+            String monthDayYear = sdf.format(wodDate);
             sdf.applyLocalizedPattern("EEEE");
-            String dayOfWeek = sdf.format(wodDate.getTime());
+            String dayOfWeek = sdf.format(wodDate);
             String text = monthDayYear + "\n" + dayOfWeek;
             headingView.setText(text);
         } else {

@@ -40,16 +40,6 @@
         </receiver>
 
         <receiver
-            android:name=".UpdateSchedulerReceiver"
-            android:enabled="true"
-            android:exported="false" >
-            <intent-filter
-               android:priority="1000">
-                <action android:name="com.mattchowning.wodnotifier.UPDATE_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
             android:name=".SendNotificationReceiver"
             android:enabled="true"
             android:exported="false" >

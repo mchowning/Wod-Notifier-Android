@@ -21,6 +21,7 @@ public class WodEntry implements Parcelable {
                                             // CFR in the form of [MM]/[DD]/[YY]
     public String link;                     // XML link field to CFR posting of Wod
     public String originalHtmlDescription;  // Original XML description field of the Wod in html
+    public Date date;
 
     private static final String TAG = WodEntry.class.getName();
 
@@ -28,6 +29,7 @@ public class WodEntry implements Parcelable {
         this.id = id;
         this.title = title;
         this.link = link;
+        this.date = getDate(title);
         this.originalHtmlDescription = originalHtmlDescription;
     }
 
@@ -40,18 +42,17 @@ public class WodEntry implements Parcelable {
         title = parcel.readString();
         link = parcel.readString();
         originalHtmlDescription = parcel.readString();
-        getPlainTextDescription();
-        getDate();
+        date = getDate(title);
     }
 
     // Parses the title into a date, but only if it is of the format MM/DD/YY, MM-DD-YY, or MM\DD\YY
-    public Date getDate() {
+    private Date getDate(String text) {
         Date result = null;
         String dateFormatRegExp = "\\d\\d[-\\/\\\\]\\d\\d[-\\/\\\\]\\d\\d";
-        if (title != null && title.matches(dateFormatRegExp)) {
+        if (text != null && text.matches(dateFormatRegExp)) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
-                result = sdf.parse(title);
+                result = sdf.parse(text);
             } catch (ParseException ex) {
                 Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
             }

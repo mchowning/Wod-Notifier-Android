@@ -2,24 +2,21 @@ package com.mattchowning.wodnotifier;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import java.util.Calendar;
 
-public class UpdateSchedulerReceiver extends BroadcastReceiver {
+public class UpdateScheduler {
 
-    private static final String TAG = UpdateSchedulerReceiver.class.getName();
+    private static final String TAG = UpdateScheduler.class.getName();
     private static final int DAILY_ALARM_REQUEST_CODE = 1;
     private static final int INTERVAL_ALARM_REQUEST_CODE = 2;
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
+    public static void setAlarms(Context context, boolean databaseUpdated, boolean firstDownload) {
         AlarmReceiver.setReceiverEnabledStatus(context, true);
-        boolean resultsUpdated = intent.getBooleanExtra(UpdateService.WERE_ENTRIES_UPDATED, false);
-        if (resultsUpdated) {
+        if (databaseUpdated && !firstDownload) {
             cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
         } else {
             setIntervalAlarm(context);                                                              // FIXME The interval alarm is started if the user checks the app before the daily alarm fires.
@@ -27,7 +24,17 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
         setDailyAlarm(context);
     }
 
-    private void setIntervalAlarm(Context context) {
+    // Cancels any alarm that has a matching pending intent.  Since all the alarms are set with
+    // the same pending intent, this effectively cancels any set alarm.  This method also
+    // disables this BroadcastReceiver.
+    public static void cancelAllAlarms(Context context) {
+        Log.d(TAG, "Cancelling all alarms and disabling the receiver");
+        cancelAlarm(context, DAILY_ALARM_REQUEST_CODE);
+        cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
+        AlarmReceiver.setReceiverEnabledStatus(context, false);
+    }
+
+    private static void setIntervalAlarm(Context context) {
         Calendar cal = Calendar.getInstance();
         long alarmInterval = getAlarmInterval(cal.get(Calendar.HOUR_OF_DAY));
         long currentTime = cal.getTimeInMillis();
@@ -40,7 +47,7 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
         am.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, alarmInterval, pIntent);
     }
 
-    private long getAlarmInterval(int currentHour) {
+    private static long getAlarmInterval(int currentHour) {
         long alarmInterval;
         switch (currentHour) {
             case 17:    // 5:00 p.m.
@@ -67,7 +74,7 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
         return alarmInterval;
     }
 
-    private void setDailyAlarm(Context context) {
+    private static void setDailyAlarm(Context context) {
         Calendar cal = Calendar.getInstance();
         int currentHour = cal.get(Calendar.HOUR_OF_DAY);
         int currentMinute = cal.get(Calendar.MINUTE);
@@ -90,16 +97,6 @@ public class UpdateSchedulerReceiver extends BroadcastReceiver {
         am.setRepeating(AlarmManager.RTC_WAKEUP, startTime, AlarmManager.INTERVAL_DAY, pIntent);
 
         Log.d(TAG, "Setting daily alarm of " + alarmHour + " hour and " + alarmMinute + " minute");
-    }
-
-    // Cancels any alarm that has a matching pending intent.  Since all the alarms are set with
-    // the same pending intent, this effectively cancels any set alarm.  This method also
-    // disables this BroadcastReceiver.
-    public static void cancelAllAlarms(Context context) {
-        Log.d(TAG, "Cancelling all alarms and disabling the receiver");
-        cancelAlarm(context, DAILY_ALARM_REQUEST_CODE);
-        cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
-        AlarmReceiver.setReceiverEnabledStatus(context, false);
     }
 
     private static void cancelAlarm(Context context, int alarmRequestCode) {

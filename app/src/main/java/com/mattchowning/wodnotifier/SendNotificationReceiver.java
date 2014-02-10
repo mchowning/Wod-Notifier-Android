@@ -19,30 +19,24 @@ import java.util.ArrayList;
 
 public class SendNotificationReceiver extends BroadcastReceiver {
 
-    private Context mContext;
     private static final int VIBRATION_LENGTH = 500;
     private static final int LIGHT_ON = 500;
     private static final int LIGHT_OFF = 2000;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        mContext = context;
-        boolean receivedUpdate = intent.getBooleanExtra(UpdateService.WERE_ENTRIES_UPDATED, false);
-
-        if (receivedUpdate) {
-            ArrayList<WodEntry> entries = intent.getParcelableArrayListExtra(UpdateService.ENTRIES);
-            if (entries.isEmpty()) return; // ArrayList should never be empty, so this should never happen
-            WodEntry firstEntry = entries.get(0);
-            String notificationText = firstEntry.title + "\n" + firstEntry.getPlainTextDescription();
-            String notificationTitle = context.getResources().getString(R.string.notification_title);
-            buildNotification(notificationTitle, notificationText);
-        }
+        ArrayList<WodEntry> entries = intent.getParcelableArrayListExtra(UpdateService.ENTRIES);
+        if (entries.isEmpty()) return; // ArrayList should never be empty, so this should never happen
+        WodEntry firstEntry = entries.get(0);
+        String notificationText = firstEntry.title + "\n" + firstEntry.getPlainTextDescription();
+        String notificationTitle = context.getResources().getString(R.string.notification_title);
+        buildNotification(context, notificationTitle, notificationText);
     }
 
-    private void buildNotification(String title, String text) {
+    private void buildNotification(Context context, String title, String text) {
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(mContext)
-                        .setLargeIcon((((BitmapDrawable) mContext.getResources().
+                new NotificationCompat.Builder(context)
+                        .setLargeIcon((((BitmapDrawable) context.getResources().
                                 getDrawable(R.drawable.ic_launcher)).getBitmap()))
                         .setSmallIcon(R.drawable.notification_icon_1)
                         .setContentTitle(title)
@@ -51,20 +45,21 @@ public class SendNotificationReceiver extends BroadcastReceiver {
                         .setLights(Color.WHITE, LIGHT_ON, LIGHT_OFF)
                         .setAutoCancel(true);
         SharedPreferences sPrefs =
-                PreferenceManager.getDefaultSharedPreferences(mContext);
-        setNotificationSound(mBuilder, sPrefs);
-        setNotificationVibrate(mBuilder, sPrefs);
+                PreferenceManager.getDefaultSharedPreferences(context);
+        setNotificationSound(context, mBuilder, sPrefs);
+        setNotificationVibrate(context, mBuilder, sPrefs);
         setExpandedNotification(text, mBuilder);
-        setNotificationPendingIntent(mBuilder);
-        sendNotification(mBuilder);
+        setNotificationPendingIntent(context, mBuilder);
+        sendNotification(context, mBuilder);
     }
 
-    private void setNotificationSound(NotificationCompat.Builder mBuilder, SharedPreferences sPrefs) {
+    private void setNotificationSound(Context context, NotificationCompat.Builder mBuilder,
+                                      SharedPreferences sPrefs) {
         String soundPrefKey =
-                mContext.getResources().getString(R.string.pref_notification_sound);
+                context.getResources().getString(R.string.pref_notification_sound);
         boolean notificationSound = sPrefs.getBoolean(soundPrefKey, false);
         if (notificationSound) {
-            Uri selectedNotificationSound = getNotificationSound(mContext, sPrefs);
+            Uri selectedNotificationSound = getNotificationSound(context, sPrefs);
             mBuilder.setSound(selectedNotificationSound);
         }
     }
@@ -86,9 +81,9 @@ public class SendNotificationReceiver extends BroadcastReceiver {
         return selectedNotificationSound;
     }
 
-    private void setNotificationVibrate(NotificationCompat.Builder mBuilder, SharedPreferences sPrefs) {
-        String vibratePrefKey =
-                mContext.getResources().getString(R.string.pref_notification_vibrate);
+    private void setNotificationVibrate(Context context, NotificationCompat.Builder mBuilder,
+                                        SharedPreferences sPrefs) {
+        String vibratePrefKey = context.getResources().getString(R.string.pref_notification_vibrate);
         boolean notificationVibrate = sPrefs.getBoolean(vibratePrefKey, false);
         if (notificationVibrate) {
             mBuilder.setVibrate(new long[]{ VIBRATION_LENGTH,
@@ -105,16 +100,16 @@ public class SendNotificationReceiver extends BroadcastReceiver {
         mBuilder.setStyle(bigTextStyle);
     }
 
-    private void setNotificationPendingIntent(NotificationCompat.Builder mBuilder) {
-        Intent onClickIntent = new Intent(mContext, MainActivity.class);
+    private void setNotificationPendingIntent(Context context, NotificationCompat.Builder mBuilder) {
+        Intent onClickIntent = new Intent(context, MainActivity.class);
         onClickIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pIntent = PendingIntent.getActivity(mContext, 0, onClickIntent, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(context, 0, onClickIntent, 0);
         mBuilder.setContentIntent(pIntent);
     }
 
-    private void sendNotification(NotificationCompat.Builder mBuilder) {
+    private void sendNotification(Context context, NotificationCompat.Builder mBuilder) {
         NotificationManager mNotificationManager = (NotificationManager)
-                mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, mBuilder.build());
     }
 }

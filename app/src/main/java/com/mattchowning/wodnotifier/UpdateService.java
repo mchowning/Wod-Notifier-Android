@@ -2,8 +2,6 @@ package com.mattchowning.wodnotifier;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
@@ -40,30 +38,37 @@ public class UpdateService extends IntentService {
         ArrayList<WodEntry> entries = new ArrayList<WodEntry>();
         try {
             entries = loadXmlFromNetwork(URL);
-        } catch (IOException e) {                                                                   // TODO Make sure the app sets up the alarms even when there isn't an internet connection.
+        } catch (IOException e) {
             Log.w(TAG, "IOException downloading rss feed");
         } catch (XmlPullParserException e) {
             Log.w(TAG, "Xml parsing exception downloading rss feed");
         }
 
         WodEntryDataSource datasource = new WodEntryDataSource(this);
+        boolean firstDownload = false;
+        boolean databaseUpdated = false;
         try {
             datasource.open();
+            firstDownload = datasource.isEmpty();
             for (WodEntry entry : entries) {
-                datasource.addWodEntry(entry);
+                if (!datasource.containsWod(entry)) {
+                    datasource.insertWodIntoDatabase(entry);
+                    databaseUpdated = true;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        boolean wereEntriesUpdated = checkIfUpdated(entries);
+        if (databaseUpdated) {
+            Intent outgoingIntent = new Intent();
+            outgoingIntent.putParcelableArrayListExtra(ENTRIES, entries);
+            outgoingIntent.setAction("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
+            sendOrderedBroadcast(outgoingIntent, null);
+        }
 
-        Intent outgoingIntent = new Intent();
-        outgoingIntent.putExtra(WERE_ENTRIES_UPDATED, wereEntriesUpdated);
-        outgoingIntent.putParcelableArrayListExtra(ENTRIES, entries);
-        outgoingIntent.setAction("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
-        sendOrderedBroadcast(outgoingIntent, null);
-        AlarmReceiver.completeWakefulIntent(intent); // Releases wakelock held by AlarmReceiver
+        UpdateScheduler.setAlarms(this, databaseUpdated, firstDownload);
+        AlarmReceiver.completeWakefulIntent(intent); // Releases any wakelock held by AlarmReceiver
     }
 
     /* Uploads XML from source url, parses the title, link, and originalHtmlDescription, and puts it
@@ -92,38 +97,38 @@ public class UpdateService extends IntentService {
         return conn.getInputStream();
     }
 
-    private boolean checkIfUpdated(ArrayList<WodEntry> entries) {
-
-        if (entries.isEmpty()) return false;
-
-        String justDownloadedEntry = entries.get(0).title;
-        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean wereResultsUpdated;
-        String lastDownloadPrefKey = getResources().getString(R.string.pref_last_downloaded_wod);
-
-        if (sPrefs.contains(lastDownloadPrefKey)) {
-            String lastDownloadedEntry = sPrefs.getString(lastDownloadPrefKey, null);
-            if (lastDownloadedEntry.equals(justDownloadedEntry)) {
-                Log.d(TAG, "Downloaded entries same as previous.");
-                wereResultsUpdated = false;
-            } else {
-                Log.d(TAG, "Downloaded updated entries.");
-                updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
-                wereResultsUpdated = true;
-            }
-        } else {
-            Log.d(TAG, "First time downloading entries.");
-            updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
-            wereResultsUpdated = false;
-        }
-        return wereResultsUpdated;
-    }
-
-    private void updateSharedPreferences(SharedPreferences sPrefs, String lastDownloadPrefKey,
-                                         String justDownloadedEntry)
-    {
-        SharedPreferences.Editor editor = sPrefs.edit();
-        editor.putString(lastDownloadPrefKey, justDownloadedEntry);
-        editor.apply();
-    }
+//    private boolean checkIfUpdated(ArrayList<WodEntry> entries) {
+//
+//        if (entries.isEmpty()) return false;
+//
+//        String justDownloadedEntry = entries.get(0).title;
+//        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        boolean wereResultsUpdated;
+//        String lastDownloadPrefKey = getResources().getString(R.string.pref_last_downloaded_wod);
+//
+//        if (sPrefs.contains(lastDownloadPrefKey)) {
+//            String lastDownloadedEntry = sPrefs.getString(lastDownloadPrefKey, null);
+//            if (lastDownloadedEntry.equals(justDownloadedEntry)) {
+//                Log.d(TAG, "Downloaded entries same as previous.");
+//                wereResultsUpdated = false;
+//            } else {
+//                Log.d(TAG, "Downloaded updated entries.");
+//                updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
+//                wereResultsUpdated = true;
+//            }
+//        } else {
+//            Log.d(TAG, "First time downloading entries.");
+//            updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
+//            wereResultsUpdated = false;
+//        }
+//        return wereResultsUpdated;
+//    }
+//
+//    private void updateSharedPreferences(SharedPreferences sPrefs, String lastDownloadPrefKey,
+//                                         String justDownloadedEntry)
+//    {
+//        SharedPreferences.Editor editor = sPrefs.edit();
+//        editor.putString(lastDownloadPrefKey, justDownloadedEntry);
+//        editor.apply();
+//    }
 }

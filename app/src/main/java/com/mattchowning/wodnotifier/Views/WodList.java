@@ -58,7 +58,6 @@ public class WodList extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         datasource = new WodEntryDataSource(getActivity());
-//        datasource.open();
     }
 
     @Override
@@ -66,25 +65,34 @@ public class WodList extends ListFragment {
         IntentFilter filter = new IntentFilter("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
         filter.setPriority(1);
 
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                // TODO update view with wods from database
-            }
-        };
-        getActivity().registerReceiver(receiver, filter);
-
-        Intent updateServiceIntent = new Intent(getActivity(), UpdateService.class);
-        getActivity().startService(updateServiceIntent);
-
         try {
             datasource.open();
             Cursor cursor = datasource.getCursor();
             adapter = new WodEntryAdapter(getActivity(), cursor, 0);
             setListAdapter(adapter);
+//            cursor.close();                                                                       // FIXME Need to close last cursor in adapter somewhere (or implement CursorLoader)
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                try {                                                                               // FIXME duplicating code
+                    datasource.open();
+                    Cursor cursor = datasource.getCursor();
+                    adapter.changeCursor(cursor);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                abortBroadcast();
+            }
+        };
+        getActivity().registerReceiver(receiver, filter);
+
+        // TODO Do I want to check for updates every time this activity resumes?
+        Intent updateServiceIntent = new Intent(getActivity(), UpdateService.class);
+        getActivity().startService(updateServiceIntent);
 
         super.onResume();
     }
