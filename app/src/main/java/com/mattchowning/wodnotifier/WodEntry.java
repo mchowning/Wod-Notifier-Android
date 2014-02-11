@@ -16,66 +16,76 @@ import java.util.Locale;
  * Simple class for holding data about the WOD for a particular day.
  */
 public class WodEntry implements Parcelable {
+    public long id;
     public String title;                    // XML title field from XML, which is the Wod's date at
                                             // CFR in the form of [MM]/[DD]/[YY]
     public String link;                     // XML link field to CFR posting of Wod
     public String originalHtmlDescription;  // Original XML description field of the Wod in html
-    public String plainTextDescription;     // Description of the Wod in plain text
     public Date date;
 
     private static final String TAG = WodEntry.class.getName();
 
-    public WodEntry(String title, String link, String originalHtmlDescription) {
+    public WodEntry(long id, String title, String link, String originalHtmlDescription) {
+        this.id = id;
         this.title = title;
         this.link = link;
+        this.date = getDate(title);
         this.originalHtmlDescription = originalHtmlDescription;
-        setDescription();
-        setDate();
+    }
+
+    public WodEntry(String title, String link, String originalHtmlDescription) {
+        this(0, title, link, originalHtmlDescription);
     }
 
     public WodEntry(Parcel parcel) {
+        id = parcel.readLong();
         title = parcel.readString();
         link = parcel.readString();
         originalHtmlDescription = parcel.readString();
-        setDescription();
-        setDate();
+        date = getDate(title);
     }
 
     // Parses the title into a date, but only if it is of the format MM/DD/YY, MM-DD-YY, or MM\DD\YY
-    private void setDate() {
-        if (title == null) return;
+    private Date getDate(String text) {
+        Date result = null;
         String dateFormatRegExp = "\\d\\d[-\\/\\\\]\\d\\d[-\\/\\\\]\\d\\d";
-        if (title.matches(dateFormatRegExp)) {
+        if (text != null && text.matches(dateFormatRegExp)) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
-                date = sdf.parse(title);
+                result = sdf.parse(text);
             } catch (ParseException ex) {
                 Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
             }
         } else {
             Log.w(TAG, "SimpleDateFormat could not parse the Wod's date");
         }
+        return result;
     }
 
     /* This method sets the description by taking the html description, converting it to plain text,
     then removing everything from "*Post results to comments on" on if
     that substring is present.  Last, the method then removes any new line characters at the end
     of the string. */
-    private void setDescription() {
-        if (originalHtmlDescription == null) return;
-        String plaintTextDescription = Html.fromHtml(originalHtmlDescription).toString();
-        String breakingPoint = "*Post results to comments";
-        int indexOfBreakingPoint = (plaintTextDescription.contains(breakingPoint)) ?
-                plaintTextDescription.indexOf(breakingPoint) : plaintTextDescription.length();
-        while (true) {
-            char lastChar = plaintTextDescription.charAt(indexOfBreakingPoint - 1);
-            if (lastChar == '\n') {
-                indexOfBreakingPoint--;
-            } else {
-                break;
-            }
+    public String getPlainTextDescription() {
+        String result = null;
+        if (originalHtmlDescription != null) {
+            result = Html.fromHtml(originalHtmlDescription).toString();
         }
-        plainTextDescription = plaintTextDescription.substring(0, indexOfBreakingPoint);
+        return result;
+
+        // If I want to break out the Wod portion
+//        String breakingPoint = "*Post results to comments";
+//        int indexOfBreakingPoint = (plainTextDescription.contains(breakingPoint)) ?
+//                plainTextDescription.indexOf(breakingPoint) : plainTextDescription.length();
+//        while (true) {
+//            char lastChar = plainTextDescription.charAt(indexOfBreakingPoint - 1);
+//            if (lastChar == '\n') {
+//                indexOfBreakingPoint--;
+//            } else {
+//                break;
+//            }
+//        }
+//        plainTextDescription = plainTextDescription.substring(0, indexOfBreakingPoint);
     }
 
     @Override
@@ -85,6 +95,7 @@ public class WodEntry implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(id);
         parcel.writeString(title);
         parcel.writeString(link);
         parcel.writeString(originalHtmlDescription);

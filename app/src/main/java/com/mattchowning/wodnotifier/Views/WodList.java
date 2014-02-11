@@ -1,22 +1,22 @@
 package com.mattchowning.wodnotifier.Views;
 
-import android.app.Activity;
 import android.app.ListFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.R;
 import com.mattchowning.wodnotifier.UpdateService;
-import com.mattchowning.wodnotifier.WodEntry;
 import com.mattchowning.wodnotifier.WodEntryAdapter;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 
 /*
  * WodList
@@ -36,8 +36,10 @@ public class WodList extends ListFragment {
 
     private static final String URL =
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
+//    private WodEntryAdapter adapter;
     private WodEntryAdapter adapter;
     private BroadcastReceiver receiver;
+    private WodEntryDataSource datasource;
 
 //    @Override
 //    public void onAttach(Activity activity) {
@@ -51,47 +53,66 @@ public class WodList extends ListFragment {
 //        }
 //    }
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        datasource = new WodEntryDataSource(getActivity());
+    }
+
     @Override
     public void onResume() {
-        super.onResume();
+        IntentFilter filter = new IntentFilter("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
+        filter.setPriority(1);
+
+        try {
+            datasource.open();
+            Cursor cursor = datasource.getCursor();
+            adapter = new WodEntryAdapter(getActivity(), cursor, 0);
+            setListAdapter(adapter);
+//            cursor.close();                                                                       // FIXME Need to close last cursor in adapter somewhere (or just implement CursorLoader)
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                ArrayList<WodEntry> entries = intent.getParcelableArrayListExtra(UpdateService.ENTRIES);
-                adapter.clear();
-                if (entries == null || entries.isEmpty()) {
-                    WodEntry emptyEntry = new WodEntry("Entries unavailable", null, null);                       // TODO Handle lack of internet connection in a better way
-                    adapter.add(emptyEntry);
-                } else {
-                    adapter.addAll(entries);
+                try {                                                                               // FIXME duplicating code
+                    datasource.open();
+                    Cursor cursor = datasource.getCursor();
+                    adapter.changeCursor(cursor);
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-
-                // Make sure broadcast is not received by SendNotificationReceiver
                 abortBroadcast();
             }
         };
-        IntentFilter filter = new IntentFilter("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
-        filter.setPriority(1);
         getActivity().registerReceiver(receiver, filter);
 
+        // TODO Do I want to check for updates every time this activity resumes?
         Intent updateServiceIntent = new Intent(getActivity(), UpdateService.class);
         getActivity().startService(updateServiceIntent);
+
+        super.onResume();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        adapter = new WodEntryAdapter(getActivity(), android.R.layout.simple_spinner_item);
-        setListAdapter(adapter);
         return inflater.inflate(R.layout.fragment_wod_list, container, false);
     }
 
     @Override
     public void onPause() {
-        super.onPause();
+        try {
+            datasource.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         getActivity().unregisterReceiver(receiver);
+        super.onPause();
     }
 
 }

@@ -31,7 +31,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             Log.d(TAG, "Wod Notifier broadcast receiver notified that a boot was completed");
         } else { // TODO Specifically define to my calling package and create an error else clause
             Log.d(TAG, "Wod Notifier broadcast receiver alerted by something else--probably " +
-                    "my UpdateSchedulerReceiver");
+                    "my UpdateScheduler");
         }
     }
 

@@ -2,84 +2,83 @@ package com.mattchowning.wodnotifier;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Layout;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
+
+import com.mattchowning.wodnotifier.Database.MySQLiteHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static android.net.Uri.parse;
-
-/*
- * WodEntryAdapter
- * ---------------
- * Adapter for putting individual WodEntries into a list entry in the WodList.
+/**
+ * Created by Matt on 2/9/14.
  */
 
-public class WodEntryAdapter extends ArrayAdapter<WodEntry> {
+public class WodEntryAdapter extends CursorAdapter {
 
-    public WodEntryAdapter(Context context, int textViewResourceId) {
-        super(context, textViewResourceId);
+    public WodEntryAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.list_item_wod, viewGroup, false);
+        return view;
+    }
 
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater)
-                    getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.list_item_wod, null);
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        WodEntry entry = getWodEntry(cursor);
+        fillHeadingView(view, context, entry);
+        fillDescriptionView(view, entry);
+    }
+
+    private WodEntry getWodEntry(Cursor cursor) {
+        String title = cursor.getString(cursor.getColumnIndexOrThrow(MySQLiteHelper.COLUMN_TITLE));
+        String link = cursor.getString(cursor.getColumnIndexOrThrow(MySQLiteHelper.COLUMN_LINK));
+        String description =
+                cursor.getString(cursor.getColumnIndexOrThrow(MySQLiteHelper.COLUMN_DESCRIPTION));
+        return new WodEntry(title, link, description);
+    }
+
+    private void fillHeadingView(View view, final Context context, WodEntry entry) {                // TODO Making this context final so I can use it in my onClickListener does not seem right
+        TextView headingView = (TextView) view.findViewById(R.id.list_item_wod_date);
+        Date wodDate = entry.date;
+        if (wodDate != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.US);
+            String monthDayYear = sdf.format(wodDate);
+            sdf.applyLocalizedPattern("EEEE");
+            String dayOfWeek = sdf.format(wodDate);
+            String text = monthDayYear + "\n" + dayOfWeek;
+            headingView.setText(text);
+        } else {
+            headingView.setText(entry.title);
         }
 
-        WodEntry thisEntry = getItem(position);
-        // Find better way to do error/null checking??
-
-        if (thisEntry != null) {
-            TextView dateView = (TextView) convertView.findViewById(R.id.list_item_wod_date);
-            Date wodDate = thisEntry.date;
-            if (wodDate != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.US);
-                String monthDayYear = sdf.format(wodDate.getTime());
-                sdf.applyLocalizedPattern("EEEE");
-                String dayOfWeek = sdf.format(wodDate.getTime());
-                String text = monthDayYear + "\n" + dayOfWeek;
-                dateView.setText(text);
-            } else {
-                dateView.setText(thisEntry.title);
+        final Uri url = Uri.parse(entry.link);
+        headingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, url);
+                context.startActivity(browserIntent);
             }
+        });
+    }
 
-            TextView descriptionView =
-                    (TextView) convertView.findViewById(R.id.list_item_wod_description);
-
-            if (thisEntry.originalHtmlDescription != null) {
-                descriptionView.setText(Html.fromHtml(thisEntry.originalHtmlDescription));
-
-                // Makes html "links" clickable
-                descriptionView.setMovementMethod(LinkMovementMethod.getInstance());
-            }
-
-            // Make clicking the text fields take you to the CFR webpage
-            if (thisEntry.link != null) {
-                final Uri url = Uri.parse(thisEntry.link);
-                View.OnClickListener listener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, url);
-                        getContext().startActivity(browserIntent);
-                    }
-                };
-                dateView.setOnClickListener(listener);
-            }
-        }
-
-        return convertView;
+    private void fillDescriptionView(View view, WodEntry entry) {
+        TextView descriptionView =
+                (TextView) view.findViewById(R.id.list_item_wod_description);
+        descriptionView.setMovementMethod(LinkMovementMethod.getInstance());
+        descriptionView.setText(Html.fromHtml(entry.originalHtmlDescription));
     }
 }
