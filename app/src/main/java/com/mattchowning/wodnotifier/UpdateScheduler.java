@@ -19,7 +19,7 @@ public class UpdateScheduler {
         if (databaseUpdated && !firstDownload) {
             cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
         } else {
-            setIntervalAlarm(context);                                                              // FIXME The interval alarm is started if the user checks the app before the daily alarm fires.
+            setIntervalAlarm(context);                                                              // FIXME The interval alarm is immediately restarted if the user checks the app before the daily alarm fires.
         }
         setDailyAlarm(context);
     }

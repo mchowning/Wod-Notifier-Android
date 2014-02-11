@@ -26,7 +26,7 @@ public class UpdateService extends IntentService {
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
     public static final String WERE_ENTRIES_UPDATED =
             "com.mattchowning.wodnotifier.wereEntriesUpdated";
-    public static final String ENTRIES =
+    public static final String NEW_ENTRIES =
             "com.mattchowning.wodnotifier.entries";
 
     public UpdateService() {
@@ -47,12 +47,14 @@ public class UpdateService extends IntentService {
         WodEntryDataSource datasource = new WodEntryDataSource(this);
         boolean firstDownload = false;
         boolean databaseUpdated = false;
+        ArrayList<WodEntry> newEntries = new ArrayList<WodEntry>();
         try {
             datasource.open();
             firstDownload = datasource.isEmpty();
             for (WodEntry entry : entries) {
                 if (!datasource.containsWod(entry)) {
                     datasource.insertWodIntoDatabase(entry);
+                    newEntries.add(entry);
                     databaseUpdated = true;
                 }
             }
@@ -62,7 +64,7 @@ public class UpdateService extends IntentService {
 
         if (databaseUpdated) {
             Intent outgoingIntent = new Intent();
-            outgoingIntent.putParcelableArrayListExtra(ENTRIES, entries);
+            outgoingIntent.putParcelableArrayListExtra(NEW_ENTRIES, newEntries);
             outgoingIntent.setAction("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
             sendOrderedBroadcast(outgoingIntent, null);
         }

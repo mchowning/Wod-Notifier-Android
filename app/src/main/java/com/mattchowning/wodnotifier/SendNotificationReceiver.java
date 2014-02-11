@@ -25,15 +25,17 @@ public class SendNotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ArrayList<WodEntry> entries = intent.getParcelableArrayListExtra(UpdateService.ENTRIES);
-        if (entries.isEmpty()) return; // ArrayList should never be empty, so this should never happen
-        WodEntry firstEntry = entries.get(0);
-        String notificationText = firstEntry.title + "\n" + firstEntry.getPlainTextDescription();
+        ArrayList<WodEntry> newEntries = intent.getParcelableArrayListExtra(UpdateService.NEW_ENTRIES);
+        if (newEntries.isEmpty()) return; // ArrayList should never be empty, so this should never happen
+        WodEntry firstNewEntry = newEntries.get(0);
+        String notificationText = firstNewEntry.title + "\n" + firstNewEntry.getPlainTextDescription();
         String notificationTitle = context.getResources().getString(R.string.notification_title);
-        buildNotification(context, notificationTitle, notificationText);
+        NotificationCompat.Builder notification =
+                buildNotification(context, notificationTitle, notificationText);
+        sendNotification(context, notification);
     }
 
-    private void buildNotification(Context context, String title, String text) {
+    private NotificationCompat.Builder buildNotification(Context context, String title, String text) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setLargeIcon((((BitmapDrawable) context.getResources().
@@ -50,7 +52,7 @@ public class SendNotificationReceiver extends BroadcastReceiver {
         setNotificationVibrate(context, mBuilder, sPrefs);
         setExpandedNotification(text, mBuilder);
         setNotificationPendingIntent(context, mBuilder);
-        sendNotification(context, mBuilder);
+        return mBuilder;
     }
 
     private void setNotificationSound(Context context, NotificationCompat.Builder mBuilder,

@@ -70,7 +70,7 @@ public class WodList extends ListFragment {
             Cursor cursor = datasource.getCursor();
             adapter = new WodEntryAdapter(getActivity(), cursor, 0);
             setListAdapter(adapter);
-//            cursor.close();                                                                       // FIXME Need to close last cursor in adapter somewhere (or implement CursorLoader)
+//            cursor.close();                                                                       // FIXME Need to close last cursor in adapter somewhere (or just implement CursorLoader)
         } catch (SQLException e) {
             e.printStackTrace();
         }
