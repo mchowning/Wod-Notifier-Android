@@ -24,8 +24,6 @@ public class UpdateService extends IntentService {
     private static final String TAG = WodList.class.getName();
     private static final String URL =
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
-    public static final String WERE_ENTRIES_UPDATED =
-            "com.mattchowning.wodnotifier.wereEntriesUpdated";
     public static final String NEW_ENTRIES =
             "com.mattchowning.wodnotifier.entries";
 
@@ -98,39 +96,4 @@ public class UpdateService extends IntentService {
         conn.connect();
         return conn.getInputStream();
     }
-
-//    private boolean checkIfUpdated(ArrayList<WodEntry> entries) {
-//
-//        if (entries.isEmpty()) return false;
-//
-//        String justDownloadedEntry = entries.get(0).title;
-//        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-//        boolean wereResultsUpdated;
-//        String lastDownloadPrefKey = getResources().getString(R.string.pref_last_downloaded_wod);
-//
-//        if (sPrefs.contains(lastDownloadPrefKey)) {
-//            String lastDownloadedEntry = sPrefs.getString(lastDownloadPrefKey, null);
-//            if (lastDownloadedEntry.equals(justDownloadedEntry)) {
-//                Log.d(TAG, "Downloaded entries same as previous.");
-//                wereResultsUpdated = false;
-//            } else {
-//                Log.d(TAG, "Downloaded updated entries.");
-//                updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
-//                wereResultsUpdated = true;
-//            }
-//        } else {
-//            Log.d(TAG, "First time downloading entries.");
-//            updateSharedPreferences(sPrefs, lastDownloadPrefKey, justDownloadedEntry);
-//            wereResultsUpdated = false;
-//        }
-//        return wereResultsUpdated;
-//    }
-//
-//    private void updateSharedPreferences(SharedPreferences sPrefs, String lastDownloadPrefKey,
-//                                         String justDownloadedEntry)
-//    {
-//        SharedPreferences.Editor editor = sPrefs.edit();
-//        editor.putString(lastDownloadPrefKey, justDownloadedEntry);
-//        editor.apply();
-//    }
 }
