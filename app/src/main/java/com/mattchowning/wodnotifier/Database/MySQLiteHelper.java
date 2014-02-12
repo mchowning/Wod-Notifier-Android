@@ -22,13 +22,17 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LINK = "link";
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_DATE = "date";
+    public static final String[] COLUMNS = {COLUMN_ID, COLUMN_TITLE, COLUMN_LINK,
+            COLUMN_DESCRIPTION, COLUMN_DATE};
 
     private static final String DATABASE_NAME = "woddata.db";
     private static final int DATABASE_VERSION = 1;
 
-    private static final String DATABASE_CREATE = "CREATE TABLE " +
-            TABLE_WOD_ENTRIES + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, " +
-            COLUMN_TITLE + " TEXT, " + COLUMN_LINK + " TEXT, " + COLUMN_DESCRIPTION + " TEXT, " +
+    private static final String DATABASE_CREATE = "CREATE TABLE " + TABLE_WOD_ENTRIES + "(" +
+            COLUMN_ID + " INTEGER PRIMARY KEY, " +
+            COLUMN_TITLE + " TEXT, " +
+            COLUMN_LINK + " TEXT, " +
+            COLUMN_DESCRIPTION + " TEXT, " +
             COLUMN_DATE + " TEXT);";
 
     private static MySQLiteHelper instance;
@@ -40,7 +44,6 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             instance = new MySQLiteHelper(context);
         }
         return instance;
-
     }
 
     private MySQLiteHelper(Context context) { //, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -51,7 +54,6 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(DATABASE_CREATE);
-
     }
 
     @Override

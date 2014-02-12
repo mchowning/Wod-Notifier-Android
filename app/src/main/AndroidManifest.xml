@@ -8,7 +8,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".Views.MainActivity"
+            android:name="com.mattchowning.wodnotifier.Views.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,16 +17,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Views.SettingsActivity"
+            android:name="com.mattchowning.wodnotifier.Views.SettingsActivity"
             android:label="@string/settings_title" />
 
         <service
-            android:name=".UpdateService"
-            android:enabled="true">
+            android:name="com.mattchowning.wodnotifier.UpdateService"
+            android:enabled="true" >
         </service>
 
         <receiver
-            android:name=".AlarmReceiver"
+            android:name="com.mattchowning.wodnotifier.AlarmReceiver"
             android:enabled="false"
             android:exported="true" >
             <intent-filter>
@@ -38,9 +38,8 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
-
         <receiver
-            android:name=".SendNotificationReceiver"
+            android:name="com.mattchowning.wodnotifier.SendNotificationReceiver"
             android:enabled="true"
             android:exported="false" >
             <intent-filter>
@@ -48,6 +47,12 @@
             </intent-filter>
         </receiver>
 
+        <provider
+            android:name="com.mattchowning.wodnotifier.Database.MyContentProvider"
+            android:authorities="com.mattchowning.wodnotifier.Database.MyContentProvider"
+            android:enabled="true"
+            android:exported="false" >
+        </provider>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
