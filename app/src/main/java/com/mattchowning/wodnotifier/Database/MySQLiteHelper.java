@@ -22,8 +22,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_LINK = "link";
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_DATE = "date";
-    public static final String[] COLUMNS = {COLUMN_ID, COLUMN_TITLE, COLUMN_LINK,
+    public static final String[] ALL_COLUMNS = {COLUMN_ID, COLUMN_TITLE, COLUMN_LINK,
             COLUMN_DESCRIPTION, COLUMN_DATE};
+    public static final String DATE_FORMAT = "yyyy-mm-dd";    // Standard SQL Date format
 
     private static final String DATABASE_NAME = "woddata.db";
     private static final int DATABASE_VERSION = 1;
@@ -46,8 +47,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         return instance;
     }
 
-    private MySQLiteHelper(Context context) { //, String name, SQLiteDatabase.CursorFactory factory, int version) {
-//        super(context, name, factory, version);
+    private MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

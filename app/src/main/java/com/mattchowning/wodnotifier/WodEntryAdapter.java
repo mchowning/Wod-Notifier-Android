@@ -51,7 +51,7 @@ public class WodEntryAdapter extends CursorAdapter {
         return new WodEntry(title, link, description);
     }
 
-    private void fillHeadingView(View view, final Context context, WodEntry entry) {                // TODO Making this context final so I can use it in my onClickListener does not seem right
+    private void fillHeadingView(View view, final Context context, WodEntry entry) {                // TODO Making this context final so I can use it in my onClickListener does not feel right
         TextView headingView = (TextView) view.findViewById(R.id.list_item_wod_date);
         Date wodDate = entry.date;
         if (wodDate != null) {

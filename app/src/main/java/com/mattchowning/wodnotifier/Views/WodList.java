@@ -1,16 +1,21 @@
 package com.mattchowning.wodnotifier.Views;
 
 import android.app.ListFragment;
+import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mattchowning.wodnotifier.Database.MyContentProvider;
+import com.mattchowning.wodnotifier.Database.MySQLiteHelper;
 import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.R;
 import com.mattchowning.wodnotifier.UpdateService;
@@ -25,75 +30,23 @@ import java.sql.SQLException;
  * using an AsyncTask to make a network call.
  */
 
-public class WodList extends ListFragment {
-//    public static final String WIFI = "Wi-Fi";
-//    public static final String ANY = "Any";
-//
-//    private static boolean isWifiConnected = false;     // Is the device connected to wifi?
-//    private static boolean isMobileConnected = false;   // Is the device connected to cell service?
-//    public static boolean displayShouldRefresh = true;  // Does the display need to refresh?
-//    public static String sPref = null;                  // User's preferences on above variables
+public class WodList extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String URL =
-            "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
-//    private WodEntryAdapter adapter;
     private WodEntryAdapter adapter;
-    private BroadcastReceiver receiver;
-    private WodEntryDataSource datasource;
-
-//    @Override
-//    public void onAttach(Activity activity) {
-//        super.onAttach(activity);
-//        if ((sPref.equals(ANY)) && (isWifiConnected || isMobileConnected)) {
-//        new WodDownloader(activity, this);                                                        // TODO Make it show a title screen while the WOD is being downloaded?
-//        } else if (sPref.equals(WIFI) && isWifiConnected) {                                       // Seems to be more of an issue on my phone.
-//            new WodDownloader().execute(URL);
-//        } else {
-//
-//        }
-//    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        datasource = new WodEntryDataSource(getActivity());
+        adapter = new WodEntryAdapter(getActivity(), null, 0);
+        setListAdapter(adapter);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
     public void onResume() {
-        IntentFilter filter = new IntentFilter("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
-        filter.setPriority(1);
-
-        try {
-            datasource.open();
-            Cursor cursor = datasource.getCursor();
-            adapter = new WodEntryAdapter(getActivity(), cursor, 0);
-            setListAdapter(adapter);
-//            cursor.close();                                                                       // FIXME Need to close last cursor in adapter somewhere (or just implement CursorLoader)
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                try {                                                                               // FIXME duplicating code
-                    datasource.open();
-                    Cursor cursor = datasource.getCursor();
-                    adapter.changeCursor(cursor);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                abortBroadcast();
-            }
-        };
-        getActivity().registerReceiver(receiver, filter);
-
         // TODO Do I want to check for updates every time this activity resumes?
         Intent updateServiceIntent = new Intent(getActivity(), UpdateService.class);
         getActivity().startService(updateServiceIntent);
-
         super.onResume();
     }
 
@@ -105,14 +58,24 @@ public class WodList extends ListFragment {
     }
 
     @Override
-    public void onPause() {
-        try {
-            datasource.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        getActivity().unregisterReceiver(receiver);
-        super.onPause();
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {MySQLiteHelper.COLUMN_ID,
+                MySQLiteHelper.COLUMN_TITLE,
+                MySQLiteHelper.COLUMN_LINK,
+                MySQLiteHelper.COLUMN_DESCRIPTION };
+        String sortOrder = MySQLiteHelper.COLUMN_DATE + " DESC";
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), MyContentProvider.WOD_URI, projection,
+                null, null, sortOrder);
+        return cursorLoader;
     }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        adapter.changeCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        adapter.changeCursor(null);
+    }
 }

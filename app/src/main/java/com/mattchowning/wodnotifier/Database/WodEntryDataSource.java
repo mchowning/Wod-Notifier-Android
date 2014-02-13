@@ -74,7 +74,7 @@ public class WodEntryDataSource {
     }
 
     private String getSqlDate(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyymmdd", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(MySQLiteHelper.DATE_FORMAT, Locale.US);
         return sdf.format(date);
     }
 

@@ -1,9 +1,13 @@
 package com.mattchowning.wodnotifier;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 
+import com.mattchowning.wodnotifier.Database.MyContentProvider;
+import com.mattchowning.wodnotifier.Database.MySQLiteHelper;
 import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.Views.WodList;
 
@@ -14,7 +18,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Matt on 1/29/14.
@@ -26,6 +33,7 @@ public class UpdateService extends IntentService {
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
     public static final String NEW_ENTRIES =
             "com.mattchowning.wodnotifier.entries";
+    public static boolean firstDownload = true;
 
     public UpdateService() {
         super("UpdateService");
@@ -42,33 +50,54 @@ public class UpdateService extends IntentService {
             Log.w(TAG, "Xml parsing exception downloading rss feed");
         }
 
-        WodEntryDataSource datasource = new WodEntryDataSource(this);
-        boolean firstDownload = false;
         boolean databaseUpdated = false;
         ArrayList<WodEntry> newEntries = new ArrayList<WodEntry>();
-        try {
-            datasource.open();
-            firstDownload = datasource.isEmpty();
-            for (WodEntry entry : entries) {
-                if (!datasource.containsWod(entry)) {
-                    datasource.insertWodIntoDatabase(entry);
-                    newEntries.add(entry);
-                    databaseUpdated = true;
-                }
+
+        for (WodEntry entry : entries) {
+            if (!wodInDatabase(entry)) {
+                insertWodIntoDatabase(entry);
+                databaseUpdated = true;
+            } else {
+                Log.d(null, "Wod already in database, so not added");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
 
         if (databaseUpdated) {
             Intent outgoingIntent = new Intent();
             outgoingIntent.putParcelableArrayListExtra(NEW_ENTRIES, newEntries);
             outgoingIntent.setAction("com.mattchowning.wodnotifier.UPDATE_COMPLETED");
-            sendOrderedBroadcast(outgoingIntent, null);
+            sendBroadcast(outgoingIntent);
         }
 
         UpdateScheduler.setAlarms(this, databaseUpdated, firstDownload);
         AlarmReceiver.completeWakefulIntent(intent); // Releases any wakelock held by AlarmReceiver
+        firstDownload = false;
+    }
+
+    private void insertWodIntoDatabase(WodEntry entry) {
+        ContentValues values = new ContentValues();
+        values.put(MySQLiteHelper.COLUMN_TITLE, entry.title);
+        values.put(MySQLiteHelper.COLUMN_LINK, entry.link);
+        values.put(MySQLiteHelper.COLUMN_DESCRIPTION, entry.originalHtmlDescription);
+        String sqlDate = getSqlDate(entry.date);
+        values.put(MySQLiteHelper.COLUMN_DATE, sqlDate);
+        getContentResolver().insert(MyContentProvider.WOD_URI, values);
+    }
+
+    private boolean wodInDatabase(WodEntry entry) {
+        String entrySqlDate = getSqlDate(entry.date);
+        String[] projection = {MySQLiteHelper.COLUMN_DATE};
+        Cursor cursor = getContentResolver().query(MyContentProvider.WOD_URI,
+                projection,
+                MySQLiteHelper.COLUMN_DATE + "=" + entrySqlDate,
+                null, null);
+        return (cursor.getCount() > 0);
+    }
+
+    /* Returns a date object as a String in the format stored in the sql database */
+    private String getSqlDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat(MySQLiteHelper.DATE_FORMAT, Locale.US);
+        return sdf.format(date);
     }
 
     /* Uploads XML from source url, parses the title, link, and originalHtmlDescription, and puts it

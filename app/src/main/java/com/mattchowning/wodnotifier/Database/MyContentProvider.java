@@ -31,6 +31,8 @@ public class MyContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, WOD_PATH + "/#", WOD_ID_URI_PATTERN);
     }
 
+    // TODO?? Make thread safe?
+
 //    public MyContentProvider() {}
 
     @Override
@@ -69,7 +71,7 @@ public class MyContentProvider extends ContentProvider {
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
             HashSet<String> availableColumns =
-                    new HashSet<String>(Arrays.asList(MySQLiteHelper.COLUMNS));
+                    new HashSet<String>(Arrays.asList(MySQLiteHelper.ALL_COLUMNS));
             if (!availableColumns.containsAll(requestedColumns)) {
                 throw new IllegalArgumentException("Unknown columns in projection");
             }
