@@ -2,11 +2,8 @@ package com.mattchowning.wodnotifier.Views;
 
 import android.app.ListFragment;
 import android.app.LoaderManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -16,12 +13,9 @@ import android.view.ViewGroup;
 
 import com.mattchowning.wodnotifier.Database.MyContentProvider;
 import com.mattchowning.wodnotifier.Database.MySQLiteHelper;
-import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.R;
 import com.mattchowning.wodnotifier.UpdateService;
 import com.mattchowning.wodnotifier.WodEntryAdapter;
-
-import java.sql.SQLException;
 
 /*
  * WodList

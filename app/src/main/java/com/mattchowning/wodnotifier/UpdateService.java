@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.mattchowning.wodnotifier.Database.MyContentProvider;
 import com.mattchowning.wodnotifier.Database.MySQLiteHelper;
-import com.mattchowning.wodnotifier.Database.WodEntryDataSource;
 import com.mattchowning.wodnotifier.Views.WodList;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
