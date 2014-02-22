@@ -1,5 +1,6 @@
 apply plugin: 'android'
 
+
 android {
     compileSdkVersion 17
     buildToolsVersion "18.1.1"
@@ -16,9 +17,29 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    // Move the default instrument tests to src/tests so that folder is read as a source folder
+    sourceSets {
+        instrumentTest.setRoot('src/test')
+    }
 }
+
+// This has to be after the android plubin and the android[] section
+apply plugin: 'android-unit-test'
 
 dependencies {
     compile 'com.android.support:appcompat-v7:+'
     compile 'com.android.support:support-v4:18.0.0'
+
+//    testDebugCompile 'org.debugonly.dependency'
+//    testFreeCompile 'debug.jar'
+
+    instrumentTestCompile 'org.robolectric:robolectric:2.2'
+    instrumentTestCompile 'junit:junit:4.11'
+    instrumentTestCompile 'com.squareup:fest-android:1.0.+'
+
+    testCompile 'org.robolectric:robolectric:2.2'
+    testCompile 'junit:junit:4.10'
+    testCompile 'com.squareup:fest-android:1.0.+'
+
 }
