@@ -68,6 +68,6 @@ public class WodEntryTest {
         WodEntry entry = new WodEntry(null, null, originalHtmlDescriptionInput);
         String expectedPlainTextDescription = "1. :60 on / 2mins off x 4 @ 100%";
         assertEquals("plainTextDescription not properly parsed",
-                expectedPlainTextDescription, entry.plainTextDescription);
+                expectedPlainTextDescription, entry.getPlainTextDescription());
     }
 }
