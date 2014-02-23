@@ -46,8 +46,8 @@ public class UpdateService extends IntentService {
         if (updatedDatabaseWithNewEntries && !firstDownload) {
             ArrayList<WodEntry> newEntries = databaseUpdater.getNewWodEntries();
             broadcastUpdate(newEntries);
-            firstDownload = false;
         }
+        firstDownload = false;
     }
 
     private void broadcastUpdate(ArrayList<WodEntry> newEntries) {
