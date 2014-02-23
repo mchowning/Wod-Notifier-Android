@@ -16,6 +16,7 @@ public class DatabaseUpdater {
     public DatabaseUpdater(WodDownloader wodDownloader, MyContentProviderHelper database ) {
         this.wodDownloader = wodDownloader;
         this.database = database;
+        updatedDatabase = false;
     }
 
     public void update() {
