@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import com.mattchowning.wodnotifier.Database.MyContentProvider;
 import com.mattchowning.wodnotifier.Database.MySQLiteHelper;
 import com.mattchowning.wodnotifier.R;
-import com.mattchowning.wodnotifier.UpdateService;
+import com.mattchowning.wodnotifier.Update.UpdateService;
 import com.mattchowning.wodnotifier.WodEntryAdapter;
 
 /*

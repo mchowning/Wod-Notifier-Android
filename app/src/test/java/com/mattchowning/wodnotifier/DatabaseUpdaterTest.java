@@ -1,6 +1,7 @@
 package com.mattchowning.wodnotifier;
 
 import com.mattchowning.wodnotifier.Database.MyContentProviderHelper;
+import com.mattchowning.wodnotifier.Update.DatabaseUpdater;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,9 +15,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,25 +26,17 @@ public class DatabaseUpdaterTest {
     private ArrayList<WodEntry> newEntries;
     private MyContentProviderHelper databaseMock;
     private ArrayList<WodEntry> databaseUnderlyingData;
-    private WodDownloader wodDownloaderMock;
-
 
     @Before
     public void setUp() {
         initializeMyContentProviderHelper();
-        initializeWodDownloaderMock();
-    }
-
-    private void initializeWodDownloaderMock() {
-        wodDownloaderMock = Mockito.mock(WodDownloader.class);
-        when(wodDownloaderMock.getDownloadedWods()).thenReturn(newEntries);
+        createNewEntries();
     }
 
     private void initializeMyContentProviderHelper() {
         setupContentProviderHelperMock();
         createOriginalEntries();
         insertOriginalEntriesIntoMyContentProviderHelperMock();
-        createNewEntries();
     }
 
     private void setupContentProviderHelperMock() {
@@ -109,24 +100,21 @@ public class DatabaseUpdaterTest {
 
     @Test
     public void testDatabaseNotUpdatedBeforeUpdateMethodCalled() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater(wodDownloaderMock,
-                databaseMock);
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
         assertFalse(databaseUpdater.databaseWasUpdated());
     }
 
     @Test
     public void testDatabaseUpdatedOnUpdateMethodCall() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater(wodDownloaderMock,
-                databaseMock);
-        databaseUpdater.update();
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
+        databaseUpdater.update(newEntries, databaseMock);
         assertTrue(databaseUpdater.databaseWasUpdated());
     }
 
     @Test
     public void testGetNewWodEntriesAfterUpdate() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater(wodDownloaderMock,
-                databaseMock);
-        databaseUpdater.update();
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
+        databaseUpdater.update(newEntries, databaseMock);
         ArrayList<WodEntry> newEntriesFromDatabase = databaseUpdater.getNewWodEntries();
         for (WodEntry entry : newEntries) {
             assertTrue(newEntriesFromDatabase.contains(entry));
@@ -135,9 +123,8 @@ public class DatabaseUpdaterTest {
 
     @Test
     public void testThatMethodCallToInsertEntriesIntoDatabaseIsMade() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater(wodDownloaderMock,
-                databaseMock);
-        databaseUpdater.update();
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
+        databaseUpdater.update(newEntries, databaseMock);
         for (WodEntry entry : newEntries) {
             verify(databaseMock).insert(entry);
         }
@@ -145,10 +132,11 @@ public class DatabaseUpdaterTest {
 
     @Test
     public void testNoDuplicateEntriesInserted() {
-        when(wodDownloaderMock.getDownloadedWods()).thenReturn(preexistingDatabaseEntries);
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater(wodDownloaderMock,
-                databaseMock);
-        databaseUpdater.update();
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
+        databaseUpdater.update(preexistingDatabaseEntries, databaseMock);
         assertFalse(databaseUpdater.databaseWasUpdated());
+
+        // Alternative test
+        // verify(databaseMock, never()).insert((WodEntry) anyObject());
     }
 }

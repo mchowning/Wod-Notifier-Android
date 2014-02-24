@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
+import com.mattchowning.wodnotifier.Update.Updater;
 import com.mattchowning.wodnotifier.Views.MainActivity;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class SendNotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ArrayList<WodEntry> newEntries = intent.getParcelableArrayListExtra(UpdateService.NEW_ENTRIES);
+        ArrayList<WodEntry> newEntries = intent.getParcelableArrayListExtra(Updater.NEW_ENTRIES);
         if (newEntries.isEmpty()) return; // ArrayList should never be empty, so this should never happen
         WodEntry firstNewEntry = newEntries.get(0);
         String notificationText = firstNewEntry.title + "\n" + firstNewEntry.getPlainTextDescription();

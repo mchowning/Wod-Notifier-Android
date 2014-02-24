@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
+import com.mattchowning.wodnotifier.Update.UpdateService;
+
 /*
  * AlarmReceiver
  * -----------------------------

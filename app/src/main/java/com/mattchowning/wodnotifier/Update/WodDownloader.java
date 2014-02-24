@@ -1,6 +1,7 @@
-package com.mattchowning.wodnotifier;
+package com.mattchowning.wodnotifier.Update;
 
-import android.util.Xml;
+import com.mattchowning.wodnotifier.WodEntry;
+import com.mattchowning.wodnotifier.XmlParser;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -12,12 +13,11 @@ import java.util.ArrayList;
 
 public class WodDownloader {
 
-    private ArrayList<WodEntry> downloadedEntries;  // TODO Could be null???
-
-    public WodDownloader(String urlString) {
+    public ArrayList<WodEntry> downloadedWods(String urlString) {
         InputStream stream = null;
+        ArrayList<WodEntry> downloadedEntries = null;
         try {
-            stream = downloadUrl(urlString);
+            stream = downloadFromUrl(urlString);
             downloadedEntries = XmlParser.parse(stream);
         } catch (IOException e) {
             e.printStackTrace();
@@ -26,6 +26,7 @@ public class WodDownloader {
         } finally {
             closeStream(stream);
         }
+        return downloadedEntries;
     }
 
     private void closeStream(InputStream stream){
@@ -37,7 +38,7 @@ public class WodDownloader {
     }
 
     // Given a string representation of a URL, sets up a connection and gets an input stream.
-    private InputStream downloadUrl(String urlString) throws IOException {
+    private InputStream downloadFromUrl(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000 /* milliseconds */);
@@ -45,9 +46,5 @@ public class WodDownloader {
         conn.setDoInput(true);
         conn.connect();
         return conn.getInputStream();
-    }
-
-    public ArrayList<WodEntry> getDownloadedWods() {
-        return downloadedEntries;
     }
 }

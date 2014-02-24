@@ -21,7 +21,7 @@
             android:label="@string/settings_title" />
 
         <service
-            android:name="com.mattchowning.wodnotifier.UpdateService"
+            android:name=".Update.UpdateService"
             android:enabled="true" >
         </service>
 

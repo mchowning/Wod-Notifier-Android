@@ -8,7 +8,7 @@ import android.preference.PreferenceManager;
 
 import com.mattchowning.wodnotifier.R;
 import com.mattchowning.wodnotifier.UpdateScheduler;
-import com.mattchowning.wodnotifier.UpdateService;
+import com.mattchowning.wodnotifier.Update.UpdateService;
 
 public class SettingsActivity extends Activity implements
         SharedPreferences.OnSharedPreferenceChangeListener {
