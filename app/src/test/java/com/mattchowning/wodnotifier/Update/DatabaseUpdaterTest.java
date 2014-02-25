@@ -1,7 +1,8 @@
-package com.mattchowning.wodnotifier;
+package com.mattchowning.wodnotifier.Update;
 
 import com.mattchowning.wodnotifier.Database.MyContentProviderHelper;
 import com.mattchowning.wodnotifier.Update.DatabaseUpdater;
+import com.mattchowning.wodnotifier.WodEntry;
 
 import org.junit.Before;
 import org.junit.Test;

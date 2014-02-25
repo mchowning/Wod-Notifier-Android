@@ -21,7 +21,8 @@ public class Updater {
 
     private UpdateFactory factory;
     private Context context;
-    private static boolean firstDownload = true; // TODO Make this check the database
+    private static boolean firstDownload = true;
+            // TODO Make this check the database (or just let there be an initial notification)
 
     public Updater(Context context, UpdateFactory factory) {
         this.factory = factory;
@@ -57,6 +58,7 @@ public class Updater {
     }
 
     private void scheduleNextUpdateCheck(boolean hasDownloadedNewEntries) {
-        UpdateScheduler.setAlarms(context, hasDownloadedNewEntries, firstDownload);
+        UpdateScheduler updateScheduler = factory.getUpdateScheduler();
+        updateScheduler.setAlarms(context, hasDownloadedNewEntries, firstDownload);
     }
 }

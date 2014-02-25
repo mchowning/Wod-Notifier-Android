@@ -14,7 +14,7 @@ public class UpdateScheduler {
     private static final int DAILY_ALARM_REQUEST_CODE = 1;
     private static final int INTERVAL_ALARM_REQUEST_CODE = 2;
 
-    public static void setAlarms(Context context, boolean databaseUpdated, boolean firstDownload) {
+    public void setAlarms(Context context, boolean databaseUpdated, boolean firstDownload) {
         AlarmReceiver.setReceiverEnabledStatus(context, true);
         if (databaseUpdated && !firstDownload) {
             cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
@@ -27,14 +27,14 @@ public class UpdateScheduler {
     // Cancels any alarm that has a matching pending intent.  Since all the alarms are set with
     // the same pending intent, this effectively cancels any set alarm.  This method also
     // disables this BroadcastReceiver.
-    public static void cancelAllAlarms(Context context) {
+    public void cancelAllAlarms(Context context) {
         Log.d(TAG, "Cancelling all alarms and disabling the receiver");
         cancelAlarm(context, DAILY_ALARM_REQUEST_CODE);
         cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);
         AlarmReceiver.setReceiverEnabledStatus(context, false);
     }
 
-    private static void setIntervalAlarm(Context context) {
+    private void setIntervalAlarm(Context context) {
         Calendar cal = Calendar.getInstance();
         long alarmInterval = getAlarmInterval(cal.get(Calendar.HOUR_OF_DAY));
         long currentTime = cal.getTimeInMillis();
@@ -47,7 +47,7 @@ public class UpdateScheduler {
         am.setInexactRepeating(AlarmManager.RTC_WAKEUP, startTime, alarmInterval, pIntent);
     }
 
-    private static long getAlarmInterval(int currentHour) {
+    private long getAlarmInterval(int currentHour) {
         long alarmInterval;
         switch (currentHour) {
             case 17:    // 5:00 p.m.
@@ -74,7 +74,7 @@ public class UpdateScheduler {
         return alarmInterval;
     }
 
-    private static void setDailyAlarm(Context context) {
+    private void setDailyAlarm(Context context) {
         Calendar cal = Calendar.getInstance();
         int currentHour = cal.get(Calendar.HOUR_OF_DAY);
         int currentMinute = cal.get(Calendar.MINUTE);
@@ -99,7 +99,7 @@ public class UpdateScheduler {
         Log.d(TAG, "Setting daily alarm of " + alarmHour + " hour and " + alarmMinute + " minute");
     }
 
-    private static void cancelAlarm(Context context, int alarmRequestCode) {
+    private void cancelAlarm(Context context, int alarmRequestCode) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, alarmRequestCode, intent, 0);
