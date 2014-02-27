@@ -7,14 +7,16 @@ import java.util.ArrayList;
 
 public class DatabaseUpdater {
 
+    private final MyContentProviderHelper database;
     private boolean updatedDatabase;
     private ArrayList<WodEntry> newWodEntries = new ArrayList<WodEntry>();
 
-    public DatabaseUpdater() {
+    public DatabaseUpdater(MyContentProviderHelper database) {
+        this.database = database;
         updatedDatabase = false;
     }
 
-    public void update(ArrayList<WodEntry> downloadedEntries, MyContentProviderHelper database ) {
+    public void update(ArrayList<WodEntry> downloadedEntries) {
         for (WodEntry entry : downloadedEntries) {
             if (!database.contains(entry)) {
                 database.insert(entry);

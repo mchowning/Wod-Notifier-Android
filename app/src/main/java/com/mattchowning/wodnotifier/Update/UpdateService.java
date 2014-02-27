@@ -13,7 +13,7 @@ public class UpdateService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        UpdateFactory factory = new UpdateFactory();
+        UpdateFactory factory = new UpdateFactory(this);
         Updater updater = new Updater(this, factory);
         updater.update();
         releaseWakelockIfPresent(intent);

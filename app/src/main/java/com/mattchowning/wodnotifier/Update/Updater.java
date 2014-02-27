@@ -44,9 +44,8 @@ public class Updater {
         WodDownloader wodDownloader = factory.getWodDownloader();
         ArrayList<WodEntry> downloadedWodEntries = wodDownloader.downloadedWods(URL);
 
-        MyContentProviderHelper database = factory.getMyContentProviderHelper(context);
         DatabaseUpdater databaseUpdater = factory.getDatabaseUpdater();
-        databaseUpdater.update(downloadedWodEntries, database);
+        databaseUpdater.update(downloadedWodEntries);
         return databaseUpdater;
     }
 

@@ -79,16 +79,12 @@ public class UpdaterTest {
 
     private UpdateFactory getUpdateFactory(boolean wasUpdated) {
         WodDownloader wodDownloaderMock = Mockito.mock(WodDownloader.class);
-        MyContentProviderHelper myContentProviderHelperMock =
-                Mockito.mock(MyContentProviderHelper.class);
         DatabaseUpdater databaseUpdaterMock = Mockito.mock(DatabaseUpdater.class);
         when(databaseUpdaterMock.databaseWasUpdated()).thenReturn(wasUpdated);
         UpdateScheduler updateSchedulerMock = Mockito.mock(UpdateScheduler.class);
 
         UpdateFactory factoryMock = Mockito.mock(UpdateFactory.class);
         when(factoryMock.getWodDownloader()).thenReturn(wodDownloaderMock);
-        when(factoryMock.getMyContentProviderHelper((Context) anyObject()))
-                .thenReturn(myContentProviderHelperMock);
         when(factoryMock.getDatabaseUpdater()).thenReturn(databaseUpdaterMock);
         when(factoryMock.getUpdateScheduler()).thenReturn(updateSchedulerMock);
         return factoryMock;

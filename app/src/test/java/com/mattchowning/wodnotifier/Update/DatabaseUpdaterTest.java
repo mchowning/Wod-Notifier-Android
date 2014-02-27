@@ -101,21 +101,21 @@ public class DatabaseUpdaterTest {
 
     @Test
     public void testDatabaseNotUpdatedBeforeUpdateMethodCalled() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
         assertFalse(databaseUpdater.databaseWasUpdated());
     }
 
     @Test
     public void testDatabaseUpdatedOnUpdateMethodCall() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
-        databaseUpdater.update(newEntries, databaseMock);
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
+        databaseUpdater.update(newEntries);
         assertTrue(databaseUpdater.databaseWasUpdated());
     }
 
     @Test
     public void testGetNewWodEntriesAfterUpdate() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
-        databaseUpdater.update(newEntries, databaseMock);
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
+        databaseUpdater.update(newEntries);
         ArrayList<WodEntry> newEntriesFromDatabase = databaseUpdater.getNewWodEntries();
         for (WodEntry entry : newEntries) {
             assertTrue(newEntriesFromDatabase.contains(entry));
@@ -124,8 +124,8 @@ public class DatabaseUpdaterTest {
 
     @Test
     public void testThatMethodCallToInsertEntriesIntoDatabaseIsMade() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
-        databaseUpdater.update(newEntries, databaseMock);
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
+        databaseUpdater.update(newEntries);
         for (WodEntry entry : newEntries) {
             verify(databaseMock).insert(entry);
         }
@@ -133,8 +133,8 @@ public class DatabaseUpdaterTest {
 
     @Test
     public void testNoDuplicateEntriesInserted() {
-        DatabaseUpdater databaseUpdater = new DatabaseUpdater();
-        databaseUpdater.update(preexistingDatabaseEntries, databaseMock);
+        DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
+        databaseUpdater.update(preexistingDatabaseEntries);
         assertFalse(databaseUpdater.databaseWasUpdated());
 
         // Alternative test

@@ -7,7 +7,13 @@ import com.mattchowning.wodnotifier.UpdateScheduler;
 
 public class UpdateFactory {
 
-    public MyContentProviderHelper getMyContentProviderHelper(Context context) {
+    private final Context context;
+
+    public UpdateFactory(Context context) {
+        this.context = context;
+    }
+
+    private MyContentProviderHelper getMyContentProviderHelper() {
         return new MyContentProviderHelper(context);
     }
 
@@ -16,7 +22,8 @@ public class UpdateFactory {
     }
 
     public DatabaseUpdater getDatabaseUpdater() {
-        return new DatabaseUpdater();
+        MyContentProviderHelper mcph = new MyContentProviderHelper(context);
+        return new DatabaseUpdater(mcph);
     }
 
     public UpdateScheduler getUpdateScheduler() {
