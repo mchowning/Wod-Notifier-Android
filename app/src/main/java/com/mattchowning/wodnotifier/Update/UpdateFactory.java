@@ -13,20 +13,23 @@ public class UpdateFactory {
         this.context = context;
     }
 
-    private MyContentProviderHelper getMyContentProviderHelper() {
-        return new MyContentProviderHelper(context);
+    public Updater getUpdater() {
+        DatabaseUpdater databaseUpdater = getDatabaseUpdater();
+        UpdateScheduler updateScheduler = getUpdateScheduler();
+        WodDownloader wodDownloader = new WodDownloader();
+        return new Updater(context, databaseUpdater, updateScheduler, wodDownloader);
     }
 
-    public WodDownloader getWodDownloader() {
-        return new WodDownloader();
-    }
-
-    public DatabaseUpdater getDatabaseUpdater() {
+    private DatabaseUpdater getDatabaseUpdater() {
         MyContentProviderHelper mcph = new MyContentProviderHelper(context);
         return new DatabaseUpdater(mcph);
     }
 
-    public UpdateScheduler getUpdateScheduler() {
-        return new UpdateScheduler();
+    private MyContentProviderHelper getMyContentProviderHelper() {
+        return new MyContentProviderHelper(context);
+    }
+
+    private UpdateScheduler getUpdateScheduler() {
+        return new UpdateScheduler(context);
     }
 }

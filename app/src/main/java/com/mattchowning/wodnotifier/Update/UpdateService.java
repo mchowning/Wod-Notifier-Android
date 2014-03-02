@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.mattchowning.wodnotifier.AlarmReceiver;
+import com.mattchowning.wodnotifier.UpdateScheduler;
 
 public class UpdateService extends IntentService {
 
@@ -14,7 +15,7 @@ public class UpdateService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         UpdateFactory factory = new UpdateFactory(this);
-        Updater updater = new Updater(this, factory);
+        Updater updater = factory.getUpdater();
         updater.update();
         releaseWakelockIfPresent(intent);
     }

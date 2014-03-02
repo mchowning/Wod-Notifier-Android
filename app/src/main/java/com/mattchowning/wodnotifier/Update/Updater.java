@@ -2,8 +2,8 @@ package com.mattchowning.wodnotifier.Update;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
-import com.mattchowning.wodnotifier.Database.MyContentProviderHelper;
 import com.mattchowning.wodnotifier.UpdateScheduler;
 import com.mattchowning.wodnotifier.WodEntry;
 
@@ -16,37 +16,35 @@ public class Updater {
 
     public static final String NEW_ENTRIES =
             "com.mattchowning.wodnotifier.entries";
-    private static final String URL =
+    private static final String URL_STRING =
             "http://www.crossfitreviver.com/index.php?format=feed&type=rss";
+    private final DatabaseUpdater databaseUpdater;
+    private final WodDownloader wodDownloader;
+    private final UpdateScheduler updateScheduler;
 
-    private UpdateFactory factory;
     private Context context;
     private static boolean firstDownload = true;
             // TODO Make this check the database (or just let there be an initial notification)
 
-    public Updater(Context context, UpdateFactory factory) {
-        this.factory = factory;
+    public Updater(Context context, DatabaseUpdater databaseUpdater, UpdateScheduler updateScheduler,
+                   WodDownloader wodDownloader) {
         this.context = context;
+        this.databaseUpdater = databaseUpdater;
+        this.updateScheduler = updateScheduler;
+        this.wodDownloader = wodDownloader;
     }
 
     public void update() {
-        DatabaseUpdater databaseUpdater = updateDatabase();
+        ArrayList<WodEntry> downloadedWods = wodDownloader.downloadedWods(URL_STRING);
+        databaseUpdater.insertIntoDatabaseIfMissing(downloadedWods);
         boolean updatedDatabaseWithNewEntries = databaseUpdater.databaseWasUpdated();
-        scheduleNextUpdateCheck(updatedDatabaseWithNewEntries);
+        scheduleNextCheckForUpdate(updatedDatabaseWithNewEntries);
         if (updatedDatabaseWithNewEntries && !firstDownload) {
+            Log.d(null, "Broadcast indicating updated database with new entries.");
             ArrayList<WodEntry> newEntries = databaseUpdater.getNewWodEntries();
             broadcastUpdate(newEntries);
         }
         firstDownload = false;
-    }
-
-    private DatabaseUpdater updateDatabase() {
-        WodDownloader wodDownloader = factory.getWodDownloader();
-        ArrayList<WodEntry> downloadedWodEntries = wodDownloader.downloadedWods(URL);
-
-        DatabaseUpdater databaseUpdater = factory.getDatabaseUpdater();
-        databaseUpdater.update(downloadedWodEntries);
-        return databaseUpdater;
     }
 
     private void broadcastUpdate(ArrayList<WodEntry> newEntries) {
@@ -56,8 +54,7 @@ public class Updater {
         context.sendBroadcast(outgoingIntent);
     }
 
-    private void scheduleNextUpdateCheck(boolean hasDownloadedNewEntries) {
-        UpdateScheduler updateScheduler = factory.getUpdateScheduler();
-        updateScheduler.setAlarms(context, hasDownloadedNewEntries, firstDownload);
+    private void scheduleNextCheckForUpdate(boolean hasDownloadedNewEntries) {
+        updateScheduler.setAlarms(hasDownloadedNewEntries, firstDownload);
     }
 }

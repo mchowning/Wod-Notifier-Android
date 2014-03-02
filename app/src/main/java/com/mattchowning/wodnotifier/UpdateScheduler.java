@@ -13,8 +13,13 @@ public class UpdateScheduler {
     private static final String TAG = UpdateScheduler.class.getName();
     private static final int DAILY_ALARM_REQUEST_CODE = 1;
     private static final int INTERVAL_ALARM_REQUEST_CODE = 2;
+    private final Context context;
 
-    public void setAlarms(Context context, boolean databaseUpdated, boolean firstDownload) {
+    public UpdateScheduler(Context context) {
+        this.context = context;
+    }
+
+    public void setAlarms(boolean databaseUpdated, boolean firstDownload) {
         AlarmReceiver.setReceiverEnabledStatus(context, true);
         if (databaseUpdated && !firstDownload) {
             cancelAlarm(context, INTERVAL_ALARM_REQUEST_CODE);

@@ -1,7 +1,6 @@
 package com.mattchowning.wodnotifier.Update;
 
 import com.mattchowning.wodnotifier.Database.MyContentProviderHelper;
-import com.mattchowning.wodnotifier.Update.DatabaseUpdater;
 import com.mattchowning.wodnotifier.WodEntry;
 
 import org.junit.Before;
@@ -108,14 +107,14 @@ public class DatabaseUpdaterTest {
     @Test
     public void testDatabaseUpdatedOnUpdateMethodCall() {
         DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
-        databaseUpdater.update(newEntries);
+        databaseUpdater.insertIntoDatabaseIfMissing(newEntries);
         assertTrue(databaseUpdater.databaseWasUpdated());
     }
 
     @Test
     public void testGetNewWodEntriesAfterUpdate() {
         DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
-        databaseUpdater.update(newEntries);
+        databaseUpdater.insertIntoDatabaseIfMissing(newEntries);
         ArrayList<WodEntry> newEntriesFromDatabase = databaseUpdater.getNewWodEntries();
         for (WodEntry entry : newEntries) {
             assertTrue(newEntriesFromDatabase.contains(entry));
@@ -125,7 +124,7 @@ public class DatabaseUpdaterTest {
     @Test
     public void testThatMethodCallToInsertEntriesIntoDatabaseIsMade() {
         DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
-        databaseUpdater.update(newEntries);
+        databaseUpdater.insertIntoDatabaseIfMissing(newEntries);
         for (WodEntry entry : newEntries) {
             verify(databaseMock).insert(entry);
         }
@@ -134,7 +133,7 @@ public class DatabaseUpdaterTest {
     @Test
     public void testNoDuplicateEntriesInserted() {
         DatabaseUpdater databaseUpdater = new DatabaseUpdater(databaseMock);
-        databaseUpdater.update(preexistingDatabaseEntries);
+        databaseUpdater.insertIntoDatabaseIfMissing(preexistingDatabaseEntries);
         assertFalse(databaseUpdater.databaseWasUpdated());
 
         // Alternative test

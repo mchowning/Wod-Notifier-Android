@@ -3,12 +3,8 @@ package com.mattchowning.wodnotifier.Update;
 import android.content.Context;
 import android.content.Intent;
 
-import com.mattchowning.wodnotifier.Database.MyContentProviderHelper;
-import com.mattchowning.wodnotifier.Update.DatabaseUpdater;
-import com.mattchowning.wodnotifier.Update.UpdateFactory;
-import com.mattchowning.wodnotifier.Update.Updater;
-import com.mattchowning.wodnotifier.Update.WodDownloader;
 import com.mattchowning.wodnotifier.UpdateScheduler;
+import com.mattchowning.wodnotifier.WodEntry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +12,9 @@ import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
+import java.util.ArrayList;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.never;
@@ -30,63 +29,68 @@ public class UpdaterTest {
 
     @Test
     public void testBroadcastUpdateWithNewEntries() {
-        UpdateFactory factoryMock = getUpdateFactory(true);
         Context realContext = Robolectric.getShadowApplication().getApplicationContext();
         Context contextSpy = spy(realContext);
+        DatabaseUpdater databaseUpdaterMock = Mockito.mock(DatabaseUpdater.class);
+        when(databaseUpdaterMock.databaseWasUpdated()).thenReturn(true);
+        UpdateScheduler updateSchedulerMock = Mockito.mock(UpdateScheduler.class);
+        WodDownloader wodDownloaderMock = Mockito.mock(WodDownloader.class);
+        when(wodDownloaderMock.downloadedWods((String)anyObject()))
+                .thenReturn(new ArrayList<WodEntry>());
+        Updater updater = new Updater(contextSpy, databaseUpdaterMock, updateSchedulerMock,
+                wodDownloaderMock);
 
-        Updater updater = new Updater(contextSpy, factoryMock);
-
-        // Verify no update broadcast on first download
+        // Verify no insertIntoDatabaseIfMissing broadcast on first download
 //        updater.update();
 //        verify(contextSpy, never()).sendBroadcast((Intent) anyObject());
-        /* FIXME This verify test fails sometimes, but not always.  Figure out why it's
-           being called when the firstDownload variable in the Updater should be false!
-           Problem may be that my firstDownload variable in the Updater is static???
-           May just want to go ahead and start having that firstDownload variable
-           start getting its value from the database. */
+        // FIXME This verify test fails sometimes, but not always.
 
-        // Verify update broadcast on second download
+        // Verify insertIntoDatabaseIfMissing broadcast on second download
         updater.update();
         verify(contextSpy).sendBroadcast((Intent) anyObject());
     }
 
     @Test
     public void testNoBroadcastUpdateWithNoNewEntries() {
-        UpdateFactory factoryMock = getUpdateFactory(false);
         Context realContext = Robolectric.getShadowApplication().getApplicationContext();
         Context contextSpy = spy(realContext);
+        DatabaseUpdater databaseUpdaterMock = Mockito.mock(DatabaseUpdater.class);
+        when(databaseUpdaterMock.databaseWasUpdated()).thenReturn(false);
+        UpdateScheduler updateSchedulerMock = Mockito.mock(UpdateScheduler.class);
+        WodDownloader wodDownloaderMock = Mockito.mock(WodDownloader.class);
+        when(wodDownloaderMock.downloadedWods((String)anyObject()))
+                .thenReturn(new ArrayList<WodEntry>());
+        Updater updater = new Updater(contextSpy, databaseUpdaterMock, updateSchedulerMock,
+                wodDownloaderMock);
 
-        Updater updater = new Updater(contextSpy, factoryMock);
         updater.update();
         updater.update();
         updater.update();
-        // Verify no update broadcast despite multiple update checks which return no new entries.
+        // Verify no insertIntoDatabaseIfMissing broadcast despite multiple insertIntoDatabaseIfMissing checks which return no new entries.
         verify(contextSpy, never()).sendBroadcast((Intent) anyObject());
     }
 
     @Test
     public void testCallToUpdateScheduler() {
-        UpdateFactory factoryMock = getUpdateFactory(false);
-        UpdateScheduler updateSchedulerMock = factoryMock.getUpdateScheduler();
         Context realContext = Robolectric.getShadowApplication().getApplicationContext();
         Context contextSpy = spy(realContext);
-
-        Updater updater = new Updater(contextSpy, factoryMock);
-        updater.update();
-
-        verify(updateSchedulerMock).setAlarms((Context) anyObject(), anyBoolean(), anyBoolean());
-    }
-
-    private UpdateFactory getUpdateFactory(boolean wasUpdated) {
-        WodDownloader wodDownloaderMock = Mockito.mock(WodDownloader.class);
         DatabaseUpdater databaseUpdaterMock = Mockito.mock(DatabaseUpdater.class);
-        when(databaseUpdaterMock.databaseWasUpdated()).thenReturn(wasUpdated);
+        when(databaseUpdaterMock.databaseWasUpdated()).thenReturn(true);
         UpdateScheduler updateSchedulerMock = Mockito.mock(UpdateScheduler.class);
-
-        UpdateFactory factoryMock = Mockito.mock(UpdateFactory.class);
-        when(factoryMock.getWodDownloader()).thenReturn(wodDownloaderMock);
-        when(factoryMock.getDatabaseUpdater()).thenReturn(databaseUpdaterMock);
-        when(factoryMock.getUpdateScheduler()).thenReturn(updateSchedulerMock);
-        return factoryMock;
+        WodDownloader wodDownloaderMock = Mockito.mock(WodDownloader.class);
+        when(wodDownloaderMock.downloadedWods((String)anyObject()))
+                .thenReturn(new ArrayList<WodEntry>());
+        Updater updater = new Updater(contextSpy, databaseUpdaterMock, updateSchedulerMock,
+                wodDownloaderMock);
+        updater.update();
+//        Context realContext = Robolectric.getShadowApplication().getApplicationContext();
+//        Context contextSpy = spy(realContext);
+//        UpdateScheduler updateSchedulerMock = new UpdateScheduler(contextSpy);
+//
+//        Updater updater = new Updater(null, null, updateSchedulerMock);
+//        updater.update();
+//
+        verify(updateSchedulerMock).setAlarms(anyBoolean(), anyBoolean());
     }
 }
+

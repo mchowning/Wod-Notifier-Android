@@ -50,7 +50,7 @@ public class SettingsActivity extends Activity implements
                 Intent intent = new Intent(this, UpdateService.class);
                 startService(intent);
             } else {
-                new UpdateScheduler().cancelAllAlarms(this);
+                new UpdateScheduler(this).cancelAllAlarms(this);
             }
         }
     }
