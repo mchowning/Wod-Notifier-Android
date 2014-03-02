@@ -9,9 +9,12 @@ import com.mattchowning.wodnotifier.WodEntry;
 
 import java.util.ArrayList;
 
-/**
- * Created by Matt on 2/23/14.
- */
+/* FIXME Once when I left my genymotion emulator off for a couple of days and then restarted
+it, it only downloaded the first missing wod (2/28), it did not download the other wods that
+had been posted in the meantime (3/1 and 3/2).  Looks like this is a bug that needs to be
+fixed. Even noticed that I got a notification for a new wod, but it didn't show up in the
+ app's ListView.  */
+
 public class Updater {
 
     public static final String NEW_ENTRIES =
